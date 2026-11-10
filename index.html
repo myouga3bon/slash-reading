@@ -574,6 +574,27 @@ function chime(){
     });
   }catch(e){}
 }
+
+/* ===== コンボ音：下フリック（わかる）が続くたびに ドレミファソラシド と上がる ===== */
+let comboN=0;
+const SCALE=[523.25,587.33,659.25,698.46,783.99,880,987.77,1046.5];
+function pip(freq,vol){
+  if(!sel.sound) return;
+  const ac=audio(); if(!ac) return;
+  try{
+    const t=ac.currentTime+0.01;
+    [[freq,vol,"sine"],[freq*2,vol*.35,"triangle"]].forEach(([f,v,ty])=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type=ty; o.frequency.setValueAtTime(f,t);
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+0.006); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+0.24);
+    });
+  }catch(e){}
+}
+function combo(v){
+  if(v==="ok"){ pip(SCALE[Math.min(comboN,SCALE.length-1)],0.16); comboN++; }
+  else comboN=0;
+}
 function celebrate(card){ chime(); }
 
 /* ===== 状態 ===== */
@@ -591,7 +612,7 @@ const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&qu
 function home(){
   const nWords=Object.keys(mem.words).length, nSents=Object.keys(mem.sents).length;
   app.innerHTML=`
-    <div class="hd"><h1>スラッシュリーディング練習</h1><div class="sndg"><button class="snd ${sel.voice?"on":""}" id="vo">読み上げ ${sel.voice?"ON":"OFF"}</button><button class="snd ${sel.sound?"on":""}" id="snd">効果音 ${sel.sound?"ON":"OFF"}</button></div></div>
+    <div class="hd"><h1>スラッシュリーディング練習</h1><div class="sndg"><button class="snd ${sel.sound?"on":""}" id="snd">効果音 ${sel.sound?"ON":"OFF"}</button></div></div>
     <div class="card gcard">
       <button class="clr" id="clr">クリア</button>
       <div class="lvgrid" id="grid">
@@ -613,7 +634,6 @@ function home(){
   app.querySelectorAll("[data-col]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[0]===b.dataset.col)));
   app.querySelectorAll("[data-row]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[1]===b.dataset.row)));
   document.getElementById("clr").onclick=()=>{sel.cells.clear();home();};
-  document.getElementById("vo").onclick=()=>{sel.voice=!sel.voice;home();};
   document.getElementById("snd").onclick=()=>{sel.sound=!sel.sound;home();};
   document.getElementById("start").onclick=()=>{
     const p=pool(); if(!p.length){const g=document.getElementById("grid");g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");return;}
@@ -623,10 +643,10 @@ function home(){
   document.getElementById("stockSent").onclick=()=>{stockTab="sents";stock();};
 }
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function startQueue(q){queue=q;qi=0;practice();}
+function startQueue(q){queue=q;qi=0;comboN=0;practice();}
 
 /* ===== 練習 ===== */
-function practice(){
+function practice(){ comboN=0;
   const s=queue[qi]; ans={}; finished=false;
   app.innerHTML=`
     <div class="top">
@@ -673,7 +693,7 @@ function attachSwipe(w,i,text){
 }
 function answer(i,v){
   ans[i]=v;
-  speakUnit(queue[qi].tokens.filter(t=>!t.slash)[i],v);
+  combo(v);
   const c=document.getElementById("c"+i);
   c.classList.remove("ok","ng"); c.classList.add("done",v);
   refreshSlashes();

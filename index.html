@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+<title>スラッシュリーディング練習</title>
+<style>
+button,input,select{font-family:inherit}
+:root{
+  --bg:#000; --card:#0d0d0f; --ink:#fff; --sub:#9ca3af;
+  --blue:#7dd3fc; --blue-d:#38bdf8; --blue-l:#0f2a38; --blue-m:#1e5a78;
+  --ok:#4ade80; --ng:#ff4d4d; --kana-size:7px; --line:#27272a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Klee One","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:6px 0 2px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sndg{display:flex;gap:6px}
+.snd{border:1px solid var(--blue-m);background:var(--blue-l);color:var(--sub);border-radius:999px;padding:3px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
+.snd.on{color:var(--blue);border-color:var(--blue)}
+.sub{color:var(--sub);font-size:13px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.card h2{font-size:14px;margin:0 0 10px;color:var(--sub);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--blue-m);background:var(--blue-l);color:var(--blue);border-radius:999px;padding:8px 16px;font-size:15px;font-weight:600;cursor:pointer}
+.chip.on{background:var(--blue-d);border-color:var(--blue-d);color:#032a3d}
+.btn{border:0;background:var(--blue-d);color:#032a3d;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:700;cursor:pointer;width:100%}
+.btn.sec{background:var(--blue-l);color:var(--blue);border:2px solid var(--blue-m)}
+.btn:disabled{opacity:.4}
+.btn.small{width:auto;padding:8px 14px;font-size:13px;border-radius:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>.btn{flex:1;min-width:140px}
+.row3{flex-wrap:nowrap}.row3>.btn{min-width:0;padding:12px 6px;font-size:15px;line-height:1.3}.row3 small{font-weight:400;font-size:11px}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.gcard{position:relative;padding-top:34px}
+.clr{position:absolute;top:8px;right:10px;border:1px solid var(--blue-m);background:var(--blue-l);color:var(--blue);border-radius:999px;padding:3px 12px;font-size:12px;font-family:inherit;cursor:pointer}
+.lvgrid{display:grid;grid-template-columns:62px repeat(5,1fr);gap:5px;align-items:stretch}
+.gh{border:0;background:transparent;color:var(--blue);font-family:inherit;font-size:16px;font-weight:600;line-height:1.1;padding:2px 0;cursor:pointer}
+.gh small{display:block;font-size:9px;color:var(--sub);font-weight:400;margin-top:2px}
+.rh{text-align:left}
+.gc{height:38px;border:2px solid var(--blue-m);background:var(--blue-l);color:var(--blue);border-radius:9px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0}
+.gc.on{background:var(--blue-d);border-color:var(--blue-d);color:#032a3d}
+.gc.empty{border-style:dashed;border-color:#1b3a4d;background:transparent;color:#3b5668;cursor:default}
+.count{font-size:13px;color:var(--sub);margin-top:8px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.badge{display:inline-block;background:var(--blue-d);color:#032a3d;border-radius:8px;padding:2px 10px;font-weight:800;font-size:15px;letter-spacing:.5px}
+
+/* practice */
+.sentence{display:flex;flex-wrap:wrap;align-items:flex-start;row-gap:18px;padding:12px 0 6px}
+.cell{display:flex;flex-direction:column;align-items:center;margin:0 2px}
+.kana{height:12px;font-size:var(--kana-size);color:var(--blue);font-weight:600;visibility:hidden;white-space:nowrap}
+.cell.done .kana{visibility:visible}
+.word{touch-action:none;user-select:none;-webkit-user-select:none;border:0;background:transparent;color:#fff;font-size:30px;line-height:36px;height:48px;font-weight:600;padding:6px 8px;cursor:grab;transition:transform .15s,color .15s}
+.word.drag{transition:none}
+.word.hintok,.cell.ok .word.hintok{color:var(--ok)} .word.hintng,.cell.ng .word.hintng{color:var(--ng)}
+.cell.ok .word{color:var(--ok)} .cell.ng .word{color:var(--ng)}
+.ja{height:20px;font-size:12px;color:#fff;visibility:hidden;margin-top:4px;white-space:nowrap}
+.cell.done .ja{visibility:visible}
+.slash{display:flex;flex-direction:column;align-items:center;opacity:0;transform:scale(.3) rotate(-20deg);margin:0 2px;width:16px}
+.slash i{display:block;height:12px}
+.slash b{display:block;height:48px;line-height:46px;font-size:34px;font-weight:300;color:var(--blue)}
+.slash.show{opacity:1;transform:scale(1) rotate(0);transition:all .35s cubic-bezier(.3,1.8,.5,1)}
+.hint{font-size:12px;color:var(--sub);margin-top:10px}
+#pcard{position:relative;overflow:hidden}
+#pcard::before,#pcard::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0}
+#pcard.lit::before{background:radial-gradient(ellipse 80% 90% at 50% -10%,rgba(255,240,170,.75),rgba(255,230,140,.25) 45%,transparent 75%);animation:lightOn 2.4s ease-out forwards}
+#pcard.lit::after{background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);animation:sweep 1.6s ease-out .1s forwards}
+#pcard.lit{animation:cardGlow 2.4s ease-out forwards}
+#pcard.lit .word{animation:wordGlow 2.4s ease-out forwards}
+@keyframes lightOn{0%{opacity:0}25%{opacity:1}100%{opacity:.35}}
+@keyframes sweep{0%{opacity:1;transform:translateX(-100%)}100%{opacity:0;transform:translateX(100%)}}
+@keyframes cardGlow{0%{box-shadow:0 0 0 rgba(255,230,140,0)}30%{box-shadow:0 0 36px rgba(255,230,140,.55)}100%{box-shadow:0 0 18px rgba(255,230,140,.25)}}
+@keyframes wordGlow{0%{text-shadow:0 0 0 rgba(255,245,190,0)}30%{text-shadow:0 0 16px rgba(255,245,190,.95)}100%{text-shadow:0 0 8px rgba(255,245,190,.45)}}
+.finish{margin-top:16px}
+.finrow{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+#trtext{margin-bottom:8px}
+.tja .tng{color:var(--ng);font-weight:700}
+.tja{font-size:18px;color:#fff}
+.sum{font-size:15px;margin-bottom:10px}
+
+/* stock */
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.lvl{font-size:15px;font-weight:800;color:var(--blue);margin:14px 0 6px}
+.item{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.rank{width:26px;text-align:center;font-weight:800;color:var(--blue-m)}
+.item .main{flex:1;min-width:0}
+.item .en{font-size:17px;font-weight:700;cursor:pointer}
+.item .meta{font-size:12px;color:var(--sub)}
+.miss{background:#3b1220;color:var(--ng);border-radius:8px;padding:2px 8px;font-size:13px;font-weight:700;white-space:nowrap}
+.del{border:0;background:var(--blue-l);color:var(--blue);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+.empty{color:var(--sub);text-align:center;padding:24px 0;font-size:14px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ===== データ ===== */
+// 語彙: [レベル, カタカナ, 和訳]
+const D = {
+  "six":["A","シックス","6時"],"at":["A","アット","に"],"brother":["A","ブラザー","弟"],"sister":["A","シスター","姉"],
+  "soccer":["A","サッカー","サッカー"],"eat":["A","イート","食べる"],"breakfast":["A","ブレックファスト","朝食"],
+  "sunday":["A","サンデー","日曜日"],"saturday":["A","サタデー","土曜日"],"father":["A","ファーザー","父"],"works":["A","ワークス","働く"],
+  "a book":["A","ア ブック","本"],"a school":["A","ア スクール","学校"],"a teacher":["A","ア ティーチャー","先生"],"a student":["A","ア ステューデント","生徒"],
+  "the kitchen":["A","ザ キッチン","台所"],"the zoo":["A","ザ ズー","動物園"],"the afternoon":["A","ザ アフタヌーン","午後"],
+  "her":["A","ハー","彼女の"],"his":["A","ヒズ","彼の"],"our":["A","アワー","私たちの"],"room":["A","ルーム","部屋"],"on":["A","オン","に"],
+  "baseball":["A","ベースボール","野球"],"it":["A","イット","それ"],"teacher":["A","ティーチャー","先生"],"saw":["A","ソー","見た"],
+  "many":["A","メニー","たくさんの"],"animals":["A","アニマルズ","動物"],"is making":["A","イズ メイキング","作っている"],
+  "for":["A","フォー","ために"],"walk":["A","ウォーク","歩く"],"students":["A","ステューデンツ","生徒"],"some":["A","サム","いくつかの"],
+  "before":["A","ビフォー","前に"],"am":["A","アム","です"],"english":["A","イングリッシュ","英語"],"math":["A","マス","数学"],
+  "do not like":["A","ドゥー ナット ライク","好きではない"],"read":["A","リード","読む"],"books":["A","ブックス","本"],
+  "two":["A","トゥー","2"],"hours":["A","アワーズ","時間"],"family":["A","ファミリー","家族"],"dinner":["A","ディナー","夕食"],
+  "after school":["A","アフター スクール","放課後"],"every day":["A","エヴリ デイ","毎日"],
+  "the library":["A","ザ ライブラリー","図書館"],"the park":["A","ザ パーク","公園"],"the piano":["A","ザ ピアノ","ピアノ"],
+  "the environment":["D","ザ インヴァイロンメント","環境"],"to protect":["D","トゥー プロテクト","守ること"],
+  "the boy":["A","ザ ボーイ","少年"],"it is":["A","イット イズ","です"],
+  "enjoy":["A","エンジョイ","楽しむ"],"playing":["A","プレイング","すること"],"went":["A","ウェント","行った"],
+  "with":["A","ウィズ","と"],"friend":["A","フレンド","友達"],"music":["A","ミュージック","音楽"],
+  "because":["B","ビコーズ","なぜなら"],"piano":["A","ピアノ","ピアノ"],"plays":["A","プレイズ","する"],
+  "tired":["B","タイアード","疲れた"],"was":["A","ワズ","でした"],"but":["A","バット","しかし"],
+  "studied":["B","スタディッド","勉強した"],"hard":["A","ハード","一生懸命"],"and":["A","アンド","そして"],
+  "likes":["A","ライクス","好き"],"singing":["A","スィンギング","歌うこと"],"dancing":["A","ダンシング","踊ること"],
+  "boy":["A","ボーイ","少年"],
+  "want to":["A","ウォント トゥー","したい"],"decided to":["B","ディサイデッド トゥー","決めた"],
+  "is interested in":["C","イズ インタレスティッド イン","興味がある"],"is good at":["B","イズ グッド アット","得意だ"],
+  "next door":["B","ネクスト ドア","隣の"],
+  "i":["A","アイ","私は"],"play":["A","プレイ","する"],"tennis":["A","テニス","テニス"],
+  "like":["A","ライク","が好き"],"dogs":["A","ドッグズ","犬"],
+  "we":["A","ウィー","私たちは"],"go":["A","ゴウ","行く"],"to":["A","トゥー","へ"],
+  "school":["A","スクール","学校"],"by":["A","バイ","で"],"bus":["A","バス","バス"],
+  "my":["A","マイ","私の"],"mother":["A","マザー","母"],"cooks":["A","クックス","料理する"],
+  "dinner":["A","ディナー","夕食"],"every":["A","エヴリ","毎"],"day":["A","デイ","日"],
+  "she":["A","シー","彼女は"],"reads":["A","リーズ","読む"],"a":["A","ア","1つの"],
+  "book":["A","ブック","本"],"in":["A","イン","の中で"],"the":["A","ザ","その"],
+  "it":["A","イット","それは"],"is":["A","イズ","です"],"are":["A","アー","です"],
+  "after":["A","アフター","のあとで"],"lunch":["A","ランチ","昼食"],"want":["A","ウォント","したい"],
+  "library":["A","ライブラリー","図書館"],"they":["A","ゼイ","彼らは"],"friends":["A","フレンズ","友達"],
+  "visit":["B","ヴィジット","訪れる"],"kyoto":["B","キョウト","京都"],"next":["B","ネクスト","次の"],
+  "park":["A","パーク","公園"],"summer":["B","サマー","夏"],"he":["A","ヒー","彼は"],
+  "decided":["B","ディサイデッド","決めた"],"study":["A","スタディ","勉強する"],"abroad":["D","アブロード","海外で"],
+  "important":["C","インポータント","重要な"],"protect":["D","プロテクト","守る"],"environment":["D","インヴァイロンメント","環境"]
+};
+
+// ===== 熟語（セット表現）リスト：[英語, カタカナ, 訳, レベル]   [a|b|c]=活用・言いかえ（英語・カタカナ・訳で同じ順）
+// この語順で文に並んでいれば自動で1かたまり（1回のフリック）になる
+const IDIOM_DEFS = [
+  ["a lot of","ア ロット オブ","たくさんの","A"],
+  ["at home","アット ホーム","家で","A"],
+  ["[go|goes|went|going] home","[ゴウ|ゴウズ|ウェント|ゴウイング] ホーム","帰る","A"],
+  ["in front of","イン フロント オブ","の前に","A"],
+  ["this [morning|afternoon|evening]","ディス [モーニング|アフタヌーン|イーヴニング]","[今朝|今日の午後|今夜]","A"],
+  ["last [year|week|night|month]","ラスト [イヤー|ウィーク|ナイト|マンス]","[昨年|先週|昨夜|先月]","A"],
+  ["next [week|year|month]","ネクスト [ウィーク|イヤー|マンス]","[来週|来年|来月]","A"],
+  ["every [day|morning|week|night]","エヴリ [デイ|モーニング|ウィーク|ナイト]","[毎日|毎朝|毎週|毎晩]","A"],
+  ["after school","アフター スクール","放課後","A"],
+  ["[look|looks|looked|looking] at","[ルック|ルックス|ルックト|ルッキング] アット","見る","A"],
+  ["[listen|listens|listened|listening] to","[リスン|リスンズ|リスンド|リスニング] トゥー","聞く","A"],
+  ["[wait|waits|waited|waiting] for","[ウェイト|ウェイツ|ウェイティッド|ウェイティング] フォー","待つ","A"],
+  ["[look|looks|looked|looking] for","[ルック|ルックス|ルックト|ルッキング] フォー","探す","A"],
+  ["[come|comes|came|coming] from","[カム|カムズ|ケイム|カミング] フロム","出身だ","A"],
+  ["[get|gets|got|getting] up","[ゲット|ゲッツ|ガット|ゲッティング] アップ","起きる","A"],
+  ["[go|goes|went|going] to bed","[ゴウ|ゴウズ|ウェント|ゴウイング] トゥー ベッド","寝る","A"],
+  ["how [many|much]","ハウ [メニー|マッチ]","[いくつの|どれくらい]","A"],
+  ["what time","ワット タイム","何時","A"],
+  ["[want|wants|wanted] to","[ウォント|ウォンツ|ウォンティッド] トゥー","したい","A"],
+  ["[have|has|had] to","[ハヴ|ハズ|ハド] トゥー","しなければならない","A"],
+  ["[like|likes|liked] to","[ライク|ライクス|ライクト] トゥー","するのが好き","B"],
+  ["[am|is|are|was|were] going to","[アム|イズ|アー|ワズ|ワー] ゴウイング トゥー","するつもりだ","B"],
+  ["would like to","ウッド ライク トゥー","したい","B"],
+  ["[have|has|had] a good time","[ハヴ|ハズ|ハド] ア グッド タイム","楽しい時を過ごす","B"],
+  ["for example","フォー イグザンプル","たとえば","B"],
+  ["of course","オブ コース","もちろん","B"],
+  ["[am|is|are|was|were] good at","[アム|イズ|アー|ワズ|ワー] グッド アット","得意だ","B"],
+  ["[am|is|are|was|were] interested in","[アム|イズ|アー|ワズ|ワー] インタレスティッド イン","興味がある","C"],
+  ["[take|takes|took|taking] care of","[テイク|テイクス|トゥック|テイキング] ケア オブ","世話をする","C"],
+  ["[look|looks|looked|looking] forward to","[ルック|ルックス|ルックト|ルッキング] フォーワード トゥー","楽しみにする","C"]
+];
+const IDM={};
+(function(){
+  const grp=/\[([^\]]+)\]/g;
+  const groups=t=>[...t.matchAll(grp)].map(m=>m[1].split("|"));
+  IDIOM_DEFS.forEach(([en,kana,ja,lv])=>{
+    const ge=groups(en), gk=groups(kana), gj=groups(ja);
+    const total=ge.reduce((n,g)=>n*g.length,1);
+    for(let c=0;c<total;c++){
+      let r=c; const idx=ge.map(g=>{const i=r%g.length; r=Math.floor(r/g.length); return i;});
+      const sub=(t,gs)=>{let j=0;return gs.length?t.replace(grp,()=>gs[j][idx[j++]]):t;};
+      const e=sub(en,ge).toLowerCase();
+      const k=sub(kana,gk.length?gk:[]), jj=sub(ja,gj.length?gj:[]);
+      IDM[e]=[lv,k,jj];
+      if(!D[e]) D[e]=[lv,k,jj];
+    }
+  });
+})();
+function mergeIdioms(tokens){
+  const out=[];
+  for(let i=0;i<tokens.length;){
+    let done=false;
+    if(!tokens[i].slash && !tokens[i].explicit){
+      for(let n=4;n>=2&&!done;n--){
+        const seg=tokens.slice(i,i+n);
+        if(seg.length<n||seg.some(x=>x.slash||x.explicit)) continue;
+        const key=seg.map(x=>x.key).join(" ");
+        if(IDM[key]){ out.push({w:seg.map(x=>x.w).join(" "),key,idiom:true,explicit:true,ja:IDM[key][2]}); i+=n; done=true; }
+      }
+    }
+    if(!done){out.push(tokens[i]);i++;}
+  }
+  return out;
+}
+// 文: [英文, 全訳]   / =スラッシュ,  語{この文での訳}（{}は省略）,  a_b{..}=熟語（1かたまり）
+// ルール: スラッシュ・熟語は「slash-reading-rules」に従う
+const RAW = [
+  ["I{私は} like{好き} dogs.{犬が}", "私は:0;犬が:2;好きです。:1"],
+  ["I{私は} enjoy{楽しむ} playing{すること} tennis.{テニスを}", "私は:0;テニスを:3;することを:2;楽しみます。:1"],
+  ["He{彼は} decided_to{決めた} study{勉強する} abroad.{海外で}", "彼は:0;海外で:3;勉強することを:2;決めました。:1"],
+  ["I{私は} went{行った} to{へ} the_library{図書館} / with{と} my{私の} friend.{友達}", "私は:0;友達と:4,5,6;図書館へ:2,3;行きました。:1"],
+  ["I{私は} want_to{したい} play{する} tennis{テニスを} / with{と} my{私の} friends{友達} / after_school.{放課後}", "私は:0;放課後、:7;友達と:4,5,6;テニスが:3;したいです。:1,2"],
+  ["My{私の} mother{母が} cooks{作る} dinner{夕食を} / every_day.{毎日}", "私の母は:0,1;毎日:4;夕食を:3;作ります。:2"],
+  ["After_school,{放課後} / we{私たちは} play{する} tennis{テニスを} / in{で} the_park.{公園}", "放課後、:0;私たちは:1;公園で:4,5;テニスを:3;します。:2"],
+  ["The_boy{少年が} next_door{隣の} / is{です} my{私の} friend.{友達}", "隣の:1;少年は:0;私の友達:3,4;です。:2"],
+  ["I{私は} was{でした} tired,{疲れて} / but{しかし} I{私は} studied{勉強した} hard.{一生懸命}", "私は:0;疲れていました:1,2;が、:3;一生懸命:6;勉強しました。:4,5"],
+  ["She{彼女は} is_good_at{得意だ} singing{歌うこと} / and{そして} she{彼女は} likes{好き} dancing.{踊ること}", "彼女は:0;歌うことが:2;得意:1;で、:3;踊ることが:4,6;好きです。:5"],
+  ["She{彼女は} is_interested_in{興味がある} music{音楽に} / because{なぜなら} she{彼女は} plays{弾く} the_piano.{ピアノを}", "彼女は:0;ピアノを:6;弾くので、:3,4,5;音楽に:2;興味があります。:1"],
+  ["It_is{です} important{大切} / to_protect{守ること} the_environment.{環境を}", "環境を:3;守ることは:2;大切です。:0,1"],
+  ["She{彼女は} plays{弾く} the_piano.{ピアノを}", "彼女は:0;ピアノを:2;弾きます。:1"],
+  ["He{彼は} is{です} my{私の} friend.{友達}", "彼は:0;私の友達:2,3;です。:1"],
+  ["I{私は} get up at{に} six.{6時}", "私は:0;6時に:2,3;起きます。:1"],
+  ["We{私たちは} go{行く} to{へ} school{学校} / by{で} bus.{バス}", "私たちは:0;バスで:4,5;学校へ:2,3;行きます。:1"],
+  ["She{彼女は} reads{読む} a_book{本を} / in{で} her{彼女の} room.{部屋}", "彼女は:0;部屋で:3,4,5;本を:2;読みます。:1"],
+  ["My{私の} sister{姉が} likes{好き} music{音楽が} / and{そして} she{彼女は} plays{弾く} the_piano{ピアノを} / every day.", "私の姉は:0,1;音楽が:3;好きで、:2,4;毎日:8;ピアノを:7;弾きます。:5,6"],
+  ["I{私は} get up at{に} six{6時} / and{そして} I{私は} eat{食べる} breakfast.{朝食を}", "私は:0;6時に:2,3;起きて、:1,4;朝食を:7;食べます。:5,6"],
+  ["We{私たちは} play{する} soccer{サッカーを} / in{で} the_park{公園} / on{に} Sunday{日曜日} / with{と} our{私たちの} friends.{友達}", "私たちは:0;日曜日に:5,6;友達と:7,8,9;公園で:3,4;サッカーを:2;します。:1"],
+  ["My{私の} father{父が} works{働く} / at{で} a_school{学校} / and{そして} he{彼は} is{です} a_teacher.{先生}", "私の父は:0,1;学校で:3,4;働いていて、:2,5;先生:8;です。:6,7"],
+  ["I{私は} get up at{に} six{6時} / and{そして} I{私は} eat{食べる} breakfast{朝食を} / with{と} my{私の} family.{家族}", "私は:0;6時に:2,3;起きて、:1,4;家族と:8,9,10;朝食を:7;食べます。:5,6"],
+  ["My{私の} brother{弟が} likes{好き} baseball{野球が} / and{そして} he{彼は} plays{する} it{それを} / with{と} his{彼の} friends{友達} / on{に} Saturday.{土曜日}", "私の弟は:0,1;野球が:3;好きで、:2,4;土曜日に:11,12;友達と:8,9,10;それを:7;します。:5,6"],
+  ["We{私たちは} went{行った} to{へ} the_zoo{動物園} / with{と} our{私たちの} teacher{先生} / and{そして} we{私たちは} saw{見た} many{たくさんの} animals.{動物}", "私たちは:0;先生と:4,5,6;動物園へ:2,3;行って、:1,7;たくさんの:10;動物を:11;見ました。:8,9"],
+  ["My{私の} sister{姉が} is{いる} in{に} the_kitchen{台所} / and{そして} she{彼女は} is_making{作っている} lunch{昼食を} / for{ために} her{彼女の} friends.{友達}", "私の姉は:0,1;台所に:3,4;いて、:2,5;友達のために:9,10,11;昼食を:8;作っています。:6,7"],
+  ["Many{多くの} students{生徒が} walk{歩く} to{へ} school{学校} / but{しかし} some{何人かの} students{生徒が} go{行く} to{へ} school{学校} / by{で} bus.{バス}", "多くの生徒は:0,1;学校へ:3,4;歩きますが、:2,5;何人かの生徒は:6,7;バスで:11,12;学校へ:9,10;行きます。:8"],
+  ["I{私は} get up at{に} six{6時} / and{そして} I{私は} eat{食べる} breakfast{朝食を} / with{と} my{私の} family{家族} / before{前に} I{私は} go{行く} to{へ} school.{学校}", "私は:0;6時に:2,3;起きて、:1,4;学校へ行く前に:11,12,13,14,15;家族と:8,9,10;朝食を:7;食べます。:5,6"],
+  ["On{に} Sunday,{日曜日} / we{私たちは} go{行く} to{へ} the_park{公園} / and{そして} we{私たちは} play{する} soccer{サッカーを} / with{と} our{私たちの} friends{友達} / in{に} the_afternoon.{午後}", "日曜日に、:0,1;私たちは:2;公園へ:4,5;行って、:3,6;友達と:10,11,12;午後に:13,14;サッカーを:9;します。:7,8"],
+  ["My{私の} sister{姉が} likes{好き} music{音楽が} / and{そして} she{彼女は} plays{弾く} the_piano{ピアノを} / in{で} her{彼女の} room{部屋} / every day / after{あと} dinner.{夕食}", "私の姉は:0,1;音楽が:3;好きで、:2,4;毎日:11;夕食のあとに:12,13;部屋で:8,9,10;ピアノを:7;弾きます。:5,6"],
+  ["I{私は} am{です} a_student{生徒} / and{そして} I{私は} study{勉強する} English{英語を} / at{で} school{学校} / but{しかし} I{私は} do_not_like{好きではない} math.{数学が}", "私は:0;生徒で、:1,2,3;学校で:7,8;英語を:6;勉強しますが、:4,5,9;数学は:12;好きではありません。:10,11"],
+  ["I{私は} went{行った} to{へ} the_library{図書館} / with{と} my{私の} friend{友達} / and{そして} we{私たちは} read{読んだ} some{いくつかの} books{本を} / for{} two{2} hours.{時間}", "私は:0;友達と:4,5,6;図書館へ:2,3;行って、:1,7;2時間:12,13,14;いくつかの:10;本を:11;読みました。:8,9"]
+];
+const LV = {A:1,B:2,C:3,D:4,E:5};
+const CIRC=["①","②","③","④","⑤"];
+const LVNAME={A:"中1全体",B:"中2初級",C:"中2全体",D:"中3初級",E:"高校入試"};
+const bandOf=n=>Math.min(5,Math.max(1,Math.floor((n-3)/3)+1));
+const SENTS = RAW.map(([raw,segstr],idx)=>{
+  const segs=segstr.split(";").map(x=>{const [t,u]=x.split(":");return {t,u:u.split(",").map(Number)};});
+  const full=segs.map(g=>g.t).join("");
+  const tokens=[];
+  raw.split(/\s+/).forEach(t=>{
+    if(t==="/"){tokens.push({slash:true});return;}
+    const m=t.match(/^([^{]+)(?:\{([^}]*)\})?$/);
+    const idiom=m[1].includes("_");
+    const w=m[1].replace(/_/g," "), key=w.replace(/[.,!?]/g,"").toLowerCase();
+    if(!D[key]) console.warn("辞書にない語:",key);
+    tokens.push({w,key,idiom,explicit:idiom||m[2]!==undefined,ja:m[2]!==undefined?m[2]:(D[key]||["","","?"])[2]});
+  });
+  tokens.splice(0,tokens.length,...mergeIdioms(tokens));
+  const words=tokens.filter(t=>!t.slash);
+  let lv="A"; words.forEach(t=>{const l=(D[t.key]||["A"])[0]; if(LV[l]>LV[lv]) lv=l;});
+  const wc=words.reduce((n,t)=>n+t.w.split(" ").length,0);
+  const en=tokens.map(t=>t.slash?"/":t.w).join(" ");
+  const band=bandOf(wc);
+  return {id:idx,raw:en,en,full,segs,tokens,n:words.length,wc,lv,band,key:band+lv,label:CIRC[band-1]+lv};
+});
+
+// 単語ストックの表示用：文中で大文字で書かれる語（I, 固有名詞）は大文字で出す
+const CAP=new Set(["i"]);
+SENTS.forEach(s=>{let first=true;s.tokens.forEach(t=>{if(t.slash){first=false;return;} /* 文頭以外で大文字なら固有の大文字 */ if(!first&&!t.idiom&&/^[A-Z]/.test(t.w)) CAP.add(t.key); first=false;});});
+const disp=k=>CAP.has(k)?k.charAt(0).toUpperCase()+k.slice(1):k;
+
+/* ===== 保存 ===== */
+let mem={words:{},sents:{}};
+function load(){ try{const s=localStorage.getItem("slashstock_v1"); if(s) mem=JSON.parse(s);}catch(e){} }
+function save(){ try{localStorage.setItem("slashstock_v1",JSON.stringify(mem));}catch(e){} }
+load();
+
+/* ===== 発音 ===== */
+function speak(text){
+  try{
+    const u=new SpeechSynthesisUtterance(text.replace(/[./]/g,""));
+    u.lang="en-US"; u.rate=.85;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// 読み上げ用の読み（漢字の誤読を防ぐ）
+const YOMI={"私は":"わたしは","好き":"すき","犬が":"いぬが","楽しむ":"たのしむ","彼は":"かれは","決めた":"きめた","勉強する":"べんきょうする","海外で":"かいがいで","行った":"いった","図書館":"としょかん","私の":"わたしの","友達":"ともだち","放課後":"ほうかご","母が":"ははが","作る":"つくる","夕食を":"ゆうしょくを","毎日":"まいにち","私たちは":"わたしたちは","公園":"こうえん","少年が":"しょうねんが","隣の":"となりの","疲れて":"つかれて","一生懸命":"いっしょうけんめい","勉強した":"べんきょうした","彼女は":"かのじょは","得意だ":"とくいだ","歌うこと":"うたうこと","踊ること":"おどること","興味がある":"きょうみがある","音楽に":"おんがくに","弾く":"ひく","大切":"たいせつ","守ること":"まもること","環境を":"かんきょうを","起きる":"おきる","6時":"ろくじ","行く":"いく","学校":"がっこう","読む":"よむ","本を":"ほんを","彼女の":"かのじょの","部屋":"へや","姉が":"あねが","音楽が":"おんがくが","食べる":"たべる","朝食を":"ちょうしょくを","日曜日":"にちようび","私たちの":"わたしたちの","父が":"ちちが","働く":"はたらく","先生":"せんせい","家族":"かぞく","弟が":"おとうとが","野球が":"やきゅうが","彼の":"かれの","土曜日":"どようび","動物園":"どうぶつえん","見た":"みた","動物":"どうぶつ","台所":"だいどころ","作っている":"つくっている","昼食を":"ちゅうしょくを","多くの":"おおくの","生徒が":"せいとが","歩く":"あるく","何人かの":"なんにんかの","前に":"まえに","午後":"ごご","夕食":"ゆうしょく","生徒":"せいと","英語を":"えいごを","好きではない":"すきではない","数学が":"すうがくが","読んだ":"よんだ","時間":"じかん","2":"に","弟":"おとうと","姉":"あね","朝食":"ちょうしょく","父":"ちち","本":"ほん","野球":"やきゅう","英語":"えいご","数学":"すうがく","環境":"かんきょう","少年":"しょうねん","音楽":"おんがく","疲れた":"つかれた","犬":"いぬ","母":"はは","料理する":"りょうりする","毎":"まい","日":"ひ","1つの":"ひとつの","の中で":"のなかで","のあとで":"のあとで","昼食":"ちゅうしょく","彼らは":"かれらは","訪れる":"おとずれる","京都":"きょうと","次の":"つぎの","夏":"なつ","重要な":"じゅうような","守る":"まもる","家で":"いえで","帰る":"かえる","の前に":"のまえに","今朝":"けさ","今日の午後":"きょうのごご","今夜":"こんや","昨年":"さくねん","先週":"せんしゅう","昨夜":"さくや","先月":"せんげつ","来週":"らいしゅう","来年":"らいねん","来月":"らいげつ","毎朝":"まいあさ","毎週":"まいしゅう","毎晩":"まいばん","見る":"みる","聞く":"きく","待つ":"まつ","探す":"さがす","出身だ":"しゅっしんだ","寝る":"ねる","何時":"なんじ","するのが好き":"するのがすき","楽しい時を過ごす":"たのしいときをすごす","世話をする":"せわをする","楽しみにする":"たのしみにする","が好き":"がすき"};
+const yomi=t=>YOMI[t]||t;
+function speakJa(text){
+  if(!sel.voice||!text) return;
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="ja-JP"; u.rate=.95;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+// ●（わからない）のとき：「クックス、つくる。クックス、つくる。」と2回／○のときは訳だけ1回
+function speakUnit(t,v){
+  const kana=(D[t.key]||[])[1]||"";
+  const ja=yomi(t.ja);
+  if(v==="ng") speakJa(ja?`${kana}、${ja}。${kana}、${ja}。`:`${kana}。`);
+  else speakJa(ja);
+}
+/* ===== きらきら演出 ===== */
+let AC=null;
+function audio(){ try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==="suspended") AC.resume(); }catch(e){} return AC; }
+function chime(){
+  if(!sel.sound) return;
+  const ac=audio(); if(!ac) return;
+  try{
+    const t0=ac.currentTime+0.02;
+    // キラ・リン：短い2音のあと、高い音を長めに響かせる
+    [[1976,0,.18,.09],[2637,.075,.18,.09],[3951,.15,.7,.11]].forEach(([f,dt,len,v])=>{
+      const t=t0+dt;
+      [[f,v],[f*2.01,v*.3]].forEach(([fr,vv])=>{
+        const o=ac.createOscillator(), g=ac.createGain();
+        o.type="sine"; o.frequency.value=fr;
+        g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vv,t+0.008); g.gain.exponentialRampToValueAtTime(0.0001,t+len);
+        o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+len+0.05);
+      });
+    });
+  }catch(e){}
+}
+function celebrate(card){ chime(); }
+
+/* ===== 状態 ===== */
+const app=document.getElementById("app");
+let sel={cells:new Set(),sound:true,voice:true};
+let queue=[],qi=0,ans={},finished=false;
+let stockTab="words";
+
+const $=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstChild;};
+const SET=5;
+const pool=()=>SENTS.filter(s=>sel.cells.has(s.key));
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ===== トップ ===== */
+function home(){
+  const nWords=Object.keys(mem.words).length, nSents=Object.keys(mem.sents).length;
+  app.innerHTML=`
+    <div class="hd"><h1>スラッシュリーディング練習</h1><div class="sndg"><button class="snd ${sel.voice?"on":""}" id="vo">読み上げ ${sel.voice?"ON":"OFF"}</button><button class="snd ${sel.sound?"on":""}" id="snd">効果音 ${sel.sound?"ON":"OFF"}</button></div></div>
+    <div class="card gcard">
+      <button class="clr" id="clr">クリア</button>
+      <div class="lvgrid" id="grid">
+        <div></div>
+        ${[1,2,3,4,5].map(b=>`<button class="gh" data-col="${b}">${CIRC[b-1]}<small>${3*b}〜${3*b+2}語</small></button>`).join("")}
+        ${["A","B","C","D","E"].map(l=>`<button class="gh rh" data-row="${l}">${l}<small>${LVNAME[l]}</small></button>`+[1,2,3,4,5].map(b=>{
+          const k=b+l, n=SENTS.filter(x=>x.key===k).length;
+          return `<button class="gc ${n?(sel.cells.has(k)?"on":""):"empty"}" data-k="${k}" ${n?"":"disabled"}></button>`;}).join("")).join("")}
+      </div>
+    </div>
+    <div class="row row3">
+      <button class="btn" id="start">スタート</button>
+      <button class="btn sec" id="stockBtn">単語ストック</button>
+      <button class="btn sec" id="stockSent">英文ストック</button>
+    </div>`;
+  const cellKeys=()=>[...app.querySelectorAll(".gc:not(.empty)")].map(e=>e.dataset.k);
+  app.querySelectorAll(".gc:not(.empty)").forEach(b=>b.onclick=()=>{const k=b.dataset.k; sel.cells.has(k)?sel.cells.delete(k):sel.cells.add(k); home();});
+  const toggleGroup=ks=>{ if(!ks.length) return; const all=ks.every(k=>sel.cells.has(k)); ks.forEach(k=>all?sel.cells.delete(k):sel.cells.add(k)); home(); };
+  app.querySelectorAll("[data-col]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[0]===b.dataset.col)));
+  app.querySelectorAll("[data-row]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[1]===b.dataset.row)));
+  document.getElementById("clr").onclick=()=>{sel.cells.clear();home();};
+  document.getElementById("vo").onclick=()=>{sel.voice=!sel.voice;home();};
+  document.getElementById("snd").onclick=()=>{sel.sound=!sel.sound;home();};
+  document.getElementById("start").onclick=()=>{
+    const p=pool(); if(!p.length){const g=document.getElementById("grid");g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");return;}
+    startQueue(shuffle(p).slice(0,SET));
+  };
+  document.getElementById("stockBtn").onclick=stock;
+  document.getElementById("stockSent").onclick=()=>{stockTab="sents";stock();};
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function startQueue(q){queue=q;qi=0;practice();}
+
+/* ===== 練習 ===== */
+function practice(){
+  const s=queue[qi]; ans={}; finished=false;
+  app.innerHTML=`
+    <div class="top">
+      <button class="btn small sec" id="back">← トップ</button>
+      <div><span class="badge">${s.label}</span> <span class="sub">${qi+1} / ${queue.length}</span></div>
+    </div>
+    <div class="card" id="pcard">
+      <div class="sentence" id="sent"></div>
+    </div>
+    <div class="finish hidden" id="fin"></div>`;
+  document.getElementById("back").onclick=home;
+  const box=document.getElementById("sent");
+  let wi=0;
+  s.tokens.forEach((t,ti)=>{
+    if(t.slash){ const sp=document.createElement("span"); sp.className="slash"; sp.id="sl"+ti; sp.innerHTML="<i></i><b>/</b>"; box.appendChild(sp); return; }
+    const i=wi++; const d=D[t.key]||["A","?","?"];
+    const c=$(`<div class="cell" id="c${i}">
+      <div class="kana">${d[1]}</div>
+      <button class="word${t.idiom?" idiom":""}">${esc(t.w)}</button>
+      <div class="ja">${esc(t.ja)}</div></div>`);
+    attachSwipe(c.querySelector(".word"),i,t.w);
+    box.appendChild(c);
+  });
+}
+function attachSwipe(w,i,text){
+  let sx=0,sy=0,on=false;
+  w.addEventListener("pointerdown",e=>{audio();sx=e.clientX;sy=e.clientY;on=true;w.classList.add("drag");try{w.setPointerCapture(e.pointerId);}catch(_){}});
+  w.addEventListener("pointermove",e=>{
+    if(!on) return;
+    const dy=e.clientY-sy, dx=e.clientX-sx;
+    w.style.transform=`translateY(${Math.max(-26,Math.min(26,dy))}px)`;
+    const sw=Math.abs(dy)>28&&Math.abs(dy)>Math.abs(dx);
+    w.classList.toggle("hintok",sw&&dy>0); w.classList.toggle("hintng",sw&&dy<0);
+  });
+  const end=e=>{
+    if(!on) return; on=false;
+    const dy=e.clientY-sy, dx=e.clientX-sx;
+    w.classList.remove("drag","hintok","hintng"); w.style.transform="";
+    if(e.type==="pointercancel") return;
+    if(Math.abs(dy)>28&&Math.abs(dy)>Math.abs(dx)) answer(i,dy>0?"ok":"ng");
+    else if(Math.abs(dy)<10&&Math.abs(dx)<10) speak(text);
+  };
+  w.addEventListener("pointerup",end); w.addEventListener("pointercancel",end);
+}
+function answer(i,v){
+  ans[i]=v;
+  speakUnit(queue[qi].tokens.filter(t=>!t.slash)[i],v);
+  const c=document.getElementById("c"+i);
+  c.classList.remove("ok","ng"); c.classList.add("done",v);
+  refreshSlashes();
+}
+function refreshSlashes(){
+  const s=queue[qi]; let wi=0,start=0;
+  const chunks=[];
+  s.tokens.forEach((t,ti)=>{
+    if(t.slash){ chunks.push({end:wi,from:start,slashId:"sl"+ti}); start=wi; }
+    else wi++;
+  });
+  chunks.forEach(ch=>{
+    let all=true; for(let k=ch.from;k<ch.end;k++) if(!ans[k]) all=false;
+    const el=document.getElementById(ch.slashId);
+    if(all && !el.classList.contains("show")){ el.classList.add("show"); }
+    if(!all) el.classList.remove("show");
+  });
+  const n=s.n; let done=0; for(let k=0;k<n;k++) if(ans[k]) done++;
+  const fin=document.getElementById("fin");
+  if(done===n){
+    const ng=Object.values(ans).filter(v=>v==="ng").length;
+    fin.classList.remove("hidden");
+    const pc=document.getElementById("pcard");
+    if(ng===0){ if(!pc.classList.contains("lit")){ pc.classList.add("lit"); celebrate(pc); } } else pc.classList.remove("lit");
+    const wasOpen=!!document.getElementById("trtext") && !document.getElementById("trtext").classList.contains("hidden");
+    fin.innerHTML=`<div class="sum">${ng===0?"":`わからなかった単語：${ng}語（ストックに入ります）`}</div>
+      <div class="card ${wasOpen?"":"hidden"}" id="trtext"></div>
+      <div class="finrow"><button class="btn small sec" id="tr">全訳</button>
+      <button class="btn small" id="next">${qi+1<queue.length?"次の文へ":"おわり"}</button></div>`;
+    document.getElementById("trtext").innerHTML=`<div class="tja">${s.segs.map(g=>`<span class="${g.u.some(k=>ans[k]==="ng")?"tng":""}">${esc(g.t)}</span>`).join("")}</div>`;
+    document.getElementById("tr").onclick=()=>{document.getElementById("trtext").classList.toggle("hidden");};
+    document.getElementById("next").onclick=commit;
+  } else { fin.classList.add("hidden"); const pc=document.getElementById("pcard"); if(pc) pc.classList.remove("lit"); }
+}
+function commit(){
+  const s=queue[qi]; let wi=0, anyNg=false;
+  s.tokens.forEach(t=>{
+    if(t.slash) return;
+    const v=ans[wi++];
+    if(v==="ng"){
+      anyNg=true;
+      const w=mem.words[t.key]||(mem.words[t.key]={miss:0});
+      w.miss++;
+    }
+  });
+  if(anyNg){ const e=mem.sents[s.id]||(mem.sents[s.id]={miss:0}); e.miss++; }
+  save();
+  if(qi+1<queue.length){qi++;practice();} else home();
+}
+
+/* ===== ストック ===== */
+function stock(){
+  const wk=Object.keys(mem.words), sk=Object.keys(mem.sents);
+  let body="";
+  if(stockTab==="words"){
+    if(!wk.length) body=`<div class="empty">まだありません</div>`;
+    else ["A","B","C","D","E"].forEach(l=>{
+      const list=wk.filter(k=>(D[k]||["A"])[0]===l)
+        .sort((a,b)=>mem.words[b].miss-mem.words[a].miss || a.localeCompare(b));
+      if(!list.length) return;
+      body+=`<div class="lvl">レベル ${l}（${list.length}語）</div>`+list.map((k,r)=>`
+        <div class="item"><div class="rank">${r+1}</div>
+          <div class="main"><div class="en" data-w="${k}">${disp(k)}</div><div class="meta">${D[k][1]}　${D[k][2]}</div></div>
+          <span class="miss">${mem.words[k].miss}回</span>
+          <button class="del" data-d="${k}">覚えた</button></div>`).join("");
+    });
+  } else {
+    if(!sk.length) body=`<div class="empty">まだありません</div>`;
+    else body=`<button class="btn small" id="pracStock" style="margin-bottom:6px">この${Math.min(SET,sk.length)}文を練習する</button>`+sk.map(Number).sort((a,b)=>mem.sents[b].miss-mem.sents[a].miss).map(id=>{
+      const s=SENTS[id]; return `<div class="item"><span class="badge">${s.label}</span>
+        <div class="main"><div class="en" data-s="${s.raw.replace(/"/g,"")}">${esc(s.raw)}</div></div>
+        <span class="miss">${mem.sents[id].miss}回</span>
+        <button class="del" data-ds="${id}">覚えた</button></div>`;}).join("");
+  }
+  app.innerHTML=`
+    <div class="top"><button class="btn small sec" id="back">← トップ</button><h1 style="margin:0">ストック</h1><span></span></div>
+    <div class="tabs">
+      <button class="chip ${stockTab==="words"?"on":""}" data-t="words">単語（${wk.length}）</button>
+      <button class="chip ${stockTab==="sents"?"on":""}" data-t="sents">文（${sk.length}）</button>
+    </div>
+    <div class="card">${body}</div>`;
+  document.getElementById("back").onclick=home;
+  const pr=document.getElementById("pracStock"); if(pr) pr.onclick=()=>{const ids=sk.map(Number); startQueue(shuffle(SENTS.filter(s=>ids.includes(s.id))).slice(0,SET));};
+  app.querySelectorAll(".tabs .chip").forEach(b=>b.onclick=()=>{stockTab=b.dataset.t;stock();});
+  app.querySelectorAll("[data-w]").forEach(e=>e.onclick=()=>speak(e.dataset.w));
+  app.querySelectorAll("[data-s]").forEach(e=>e.onclick=()=>speak(e.dataset.s));
+  app.querySelectorAll("[data-d]").forEach(e=>e.onclick=()=>{delete mem.words[e.dataset.d];save();stock();});
+  app.querySelectorAll("[data-ds]").forEach(e=>e.onclick=()=>{delete mem.sents[e.dataset.ds];save();stock();});
+}
+
+home();
+</script>
+</body>
+</html>

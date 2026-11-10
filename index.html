@@ -54,14 +54,15 @@ h1{font-size:20px;margin:6px 0 2px}
 .sentence{display:flex;flex-wrap:wrap;align-items:flex-start;row-gap:18px;padding:12px 0 6px}
 html,body{overscroll-behavior:none}
 #pcard,#pcard *{-webkit-touch-callout:none}
-.cell{display:flex;flex-direction:column;align-items:center;margin:0 2px}
+.cell{display:flex;flex-direction:column;align-items:flex-start;margin:0 2px}
+.wk{display:flex;flex-direction:column;align-items:center}
 .kana{height:12px;font-size:var(--kana-size);color:var(--blue);font-weight:600;visibility:hidden;white-space:nowrap}
 .cell.done .kana{visibility:visible}
 .word{touch-action:none;user-select:none;-webkit-user-select:none;border:0;background:transparent;color:#fff;font-size:30px;line-height:36px;height:48px;font-weight:600;padding:6px 8px;cursor:grab;transition:transform .15s,color .15s}
 .word.drag{transition:none}
 .word.hintok,.cell.ok .word.hintok{color:var(--ok)} .word.hintng,.cell.ng .word.hintng{color:var(--ng)}
 .cell.ok .word{color:var(--ok)} .cell.ng .word{color:var(--ng)}
-.ja{height:20px;font-size:12px;color:#fff;visibility:hidden;margin-top:4px;white-space:nowrap}
+.ja{height:26px;font-size:17px;line-height:22px;color:#fff;visibility:hidden;margin-top:2px;padding-left:8px;text-align:left;white-space:nowrap}
 .cell.done .ja{visibility:visible}
 .slash{display:flex;flex-direction:column;align-items:center;opacity:0;transform:scale(.3) rotate(-20deg);margin:0 2px;width:16px}
 .slash i{display:block;height:12px}
@@ -501,7 +502,7 @@ function save(){ try{localStorage.setItem("slashstock_v1",JSON.stringify(mem));}
 load();
 
 /* ===== 発音 ===== */
-function speak(text){ say(text.replace(/[./]/g,""),"en-US",.85,pickVoice("en")); }
+function speak(text){ say(text.replace(/[./]/g,""),"en-US",.9,pickVoice("en")); }
 // iPhone対策：最初のタッチで読み上げを「解錠」し、cancel直後のspeakを避ける
 let _unl=false;
 function unlockSpeech(){
@@ -643,8 +644,8 @@ function practice(){
     if(t.slash){ const sp=document.createElement("span"); sp.className="slash"; sp.id="sl"+ti; sp.innerHTML="<i></i><b>/</b>"; box.appendChild(sp); return; }
     const i=wi++; const d=D[t.key]||["A","?","?"];
     const c=$(`<div class="cell" id="c${i}">
-      <div class="kana">${d[1]}</div>
-      <button class="word${t.idiom?" idiom":""}">${esc(t.w)}</button>
+      <div class="wk"><div class="kana">${d[1]}</div>
+      <button class="word${t.idiom?" idiom":""}">${esc(t.w)}</button></div>
       <div class="ja">${esc(t.ja)}</div></div>`);
     attachSwipe(c.querySelector(".word"),i,t.w);
     box.appendChild(c);

@@ -52,6 +52,8 @@ h1{font-size:20px;margin:6px 0 2px}
 
 /* practice */
 .sentence{display:flex;flex-wrap:wrap;align-items:flex-start;row-gap:18px;padding:12px 0 6px}
+html,body{overscroll-behavior:none}
+#pcard,#pcard *{-webkit-touch-callout:none}
 .cell{display:flex;flex-direction:column;align-items:center;margin:0 2px}
 .kana{height:12px;font-size:var(--kana-size);color:var(--blue);font-weight:600;visibility:hidden;white-space:nowrap}
 .cell.done .kana{visibility:visible}
@@ -499,12 +501,24 @@ function save(){ try{localStorage.setItem("slashstock_v1",JSON.stringify(mem));}
 load();
 
 /* ===== 発音 ===== */
-function speak(text){
+function speak(text){ say(text.replace(/[./]/g,""),"en-US",.85,pickVoice("en")); }
+// iPhone対策：最初のタッチで読み上げを「解錠」し、cancel直後のspeakを避ける
+let _unl=false;
+function unlockSpeech(){
+  if(_unl) return;
+  try{ const u=new SpeechSynthesisUtterance(" "); u.volume=0; speechSynthesis.speak(u); _unl=true; }catch(e){}
+}
+function say(text,lang,rate,voice){
   try{
-    const u=new SpeechSynthesisUtterance(text.replace(/[./]/g,""));
-    u.lang="en-US"; u.rate=.85;
-    const ev=pickVoice("en"); if(ev) u.voice=ev;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
+    const go=()=>{
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang=lang; u.rate=rate; u.pitch=1; u.volume=1;
+      if(voice) u.voice=voice;
+      try{speechSynthesis.resume();}catch(_){}
+      speechSynthesis.speak(u);
+    };
+    if(speechSynthesis.speaking||speechSynthesis.pending){ speechSynthesis.cancel(); setTimeout(go,60); }
+    else go();
   }catch(e){}
 }
 
@@ -531,12 +545,7 @@ function pickVoice(lang){
 try{ speechSynthesis.onvoiceschanged=()=>{_vc={};}; speechSynthesis.getVoices(); }catch(e){}
 function speakJa(text){
   if(!sel.voice||!text) return;
-  try{
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang="ja-JP"; u.rate=1; u.pitch=1;
-    const v=pickVoice("ja"); if(v) u.voice=v;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  }catch(e){}
+  say(text,"ja-JP",1,pickVoice("ja"));
 }
 // ○でも●でも、日本語の訳だけを1回読む
 function speakUnit(t,v){
@@ -643,7 +652,7 @@ function practice(){
 }
 function attachSwipe(w,i,text){
   let sx=0,sy=0,on=false;
-  w.addEventListener("pointerdown",e=>{audio();sx=e.clientX;sy=e.clientY;on=true;w.classList.add("drag");try{w.setPointerCapture(e.pointerId);}catch(_){}});
+  w.addEventListener("pointerdown",e=>{audio();unlockSpeech();sx=e.clientX;sy=e.clientY;on=true;w.classList.add("drag");try{w.setPointerCapture(e.pointerId);}catch(_){}});
   w.addEventListener("pointermove",e=>{
     if(!on) return;
     const dy=e.clientY-sy, dx=e.clientX-sx;
@@ -755,6 +764,14 @@ function stock(){
 }
 
 home();
+
+// 練習中、文字以外をフリックしても画面全体がずれないようにする（はみ出して動かせるときは通常どおり）
+document.addEventListener("touchmove",e=>{
+  if(!document.getElementById("pcard")) return;
+  const de=document.documentElement;
+  if(de.scrollHeight<=window.innerHeight+2) e.preventDefault();
+},{passive:false});
+document.addEventListener("pointerdown",()=>{audio();unlockSpeech();},{passive:true});
 </script>
 </body>
 </html>

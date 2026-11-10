@@ -577,7 +577,9 @@ function chime(){
 
 /* ===== コンボ音：下フリック（わかる）が続くたびに ドレミファソラシド と上がる ===== */
 let comboN=0;
-const SCALE=[523.25,587.33,659.25,698.46,783.99,880,987.77,1046.5];
+// ドレミファソラシド→レミファソ…と、オクターブをまたいでどんどん上がる（高いドの2オクターブ上まで）
+const MAJ=[0,2,4,5,7,9,11];
+const noteFreq=n=>523.25*Math.pow(2,(Math.floor(n/7)*12+MAJ[n%7])/12);
 function pip(freq,vol){
   if(!sel.sound) return;
   const ac=audio(); if(!ac) return;
@@ -592,7 +594,7 @@ function pip(freq,vol){
   }catch(e){}
 }
 function combo(v){
-  if(v==="ok"){ pip(SCALE[Math.min(comboN,SCALE.length-1)],0.16); comboN++; }
+  if(v==="ok"){ pip(noteFreq(Math.min(comboN,14)),Math.max(.1,.16-comboN*.003)); comboN++; }
   else comboN=0;
 }
 function celebrate(card){ chime(); }

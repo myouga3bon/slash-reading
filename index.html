@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
-<title>スラッシュリーディング練習</title>
+<title>フリックリーディング</title>
 <style>
 button,input,select{font-family:inherit}
 :root{
@@ -17,7 +17,7 @@ button,input,select{font-family:inherit}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Klee One","Hiragino Maru Gothic ProN","Hiragino Sans",sans-serif;line-height:1.5}
 .wrap{max-width:860px;margin:0 auto;padding:16px}
-h1{font-size:20px;margin:6px 0 2px}
+h1{font-size:clamp(13px,4.2vw,17px);margin:6px 0 2px;min-width:0}
 .hd{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sndg{display:flex;gap:6px}
 .snd{border:1px solid var(--blue-m);background:var(--blue-l);color:var(--sub);border-radius:999px;padding:3px 10px;font-size:11px;cursor:pointer;white-space:nowrap}
@@ -61,6 +61,8 @@ html,body{overscroll-behavior:none}
 .word{touch-action:none;user-select:none;-webkit-user-select:none;border:0;background:transparent;color:#fff;font-size:var(--wfs,26px);line-height:calc(var(--wfs,26px)*1.2);height:calc(var(--wfs,26px)*1.3);font-weight:600;padding:2px 0;cursor:grab;transition:transform .15s,color .15s}
 .word.drag{transition:none}
 .word.hintok,.cell.ok .word.hintok{color:var(--ok)} .word.hintng,.cell.ng .word.hintng{color:var(--ng)}
+.word.short{position:relative;min-width:30px}
+.word.short::before{content:"";position:absolute;top:-14px;bottom:-14px;left:-18px;right:-18px}
 .cell.ok .word{color:var(--ok)} .cell.ng .word{color:var(--ng)}
 .ja{height:calc(var(--wfs,26px)*.87);font-size:calc(var(--wfs,26px)*.57);line-height:calc(var(--wfs,26px)*.73);color:#fff;visibility:hidden;margin-top:0;padding-left:0;text-align:left;white-space:nowrap}
 .cell.done .ja{visibility:visible}
@@ -81,12 +83,14 @@ html,body{overscroll-behavior:none}
 @keyframes wordGlow{0%{text-shadow:0 0 0 rgba(255,245,190,0)}30%{text-shadow:0 0 16px rgba(255,245,190,.95)}100%{text-shadow:0 0 8px rgba(255,245,190,.45)}}
 .finish{margin-top:16px;position:sticky;bottom:0;padding:10px 0 calc(10px + env(safe-area-inset-bottom));background:linear-gradient(rgba(0,0,0,0),var(--bg,#000) 30%);z-index:5}
 .finrow{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
-#trtext{margin-bottom:8px}
+.finrow{position:relative}
+#trtext{position:absolute;left:0;right:0;bottom:calc(100% + 8px);z-index:6;max-height:46vh;overflow:auto;margin:0;background:#0d0d0f;border:1px solid var(--blue-m);box-shadow:0 -8px 28px rgba(0,0,0,.85);text-align:left}
+.tja+.tja{margin-top:8px}.tja{line-height:1.5}
 .tja .tng{color:var(--ng);font-weight:700}
-.tja{font-size:18px;color:#fff}
+.tja{font-size:16px;color:#fff}
 .sum{font-size:14px;margin-bottom:6px}
 .ev{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.ev-l{font-size:26px;font-weight:700;letter-spacing:.02em}
+.ev-l{font-size:22px;font-weight:700;letter-spacing:.02em}
 .ev-l.g{color:#7dd3fc} .ev-l.b{color:#ff8fc7} .ev-l.s{color:#fde047}
 .ev-s{font-size:12px;color:#d4d4d8}
 
@@ -103,6 +107,43 @@ html,body{overscroll-behavior:none}
 .del{border:0;background:var(--blue-l);color:var(--blue);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
 .empty{color:var(--sub);text-align:center;padding:24px 0;font-size:14px}
 .hidden{display:none}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.nsel{display:flex;align-items:center;gap:3px}
+.np.ta{width:34px;border-radius:999px;font-size:12px;letter-spacing:.3px;background:#ffd6ea;color:#c2185b;border-color:#ff8fc7}
+.np.ta.on{background:#ff8fc7;color:#4a0a2a;border-color:#ff8fc7}
+.nl{font-size:10px;color:var(--sub);margin-right:2px;white-space:nowrap}
+h1{white-space:nowrap}
+.logo-sign{display:inline-flex;flex-direction:column;gap:4px;background:#fff1dc;border:2px solid #ffc773;border-radius:14px;padding:6px 12px;margin:2px 0;white-space:nowrap}
+.lg-row{display:inline-flex;align-items:center;gap:6px}
+.lg-t{display:inline-flex;gap:2px}
+.lg-t span{display:inline-flex;align-items:center;justify-content:center;width:1.55em;height:1.55em;font-size:14px;font-weight:900;color:#231815;line-height:1}
+.lg-t.s span{font-size:11px;width:1.5em}
+.lg-t .t1{background:#bbdcf4}.lg-t .t2{background:#f9c159}.lg-t .t3{background:#c4d710}.lg-t .t4{background:#f4abaf}
+.lg-name{font-size:13px;font-weight:900;color:#1daacf;letter-spacing:.04em}
+.hd{flex-direction:column;align-items:stretch;gap:4px}
+.hd .hr{align-self:flex-end}
+.pgname{font-size:11px;color:var(--sub);letter-spacing:.1em}
+
+.np{width:24px;height:24px;border-radius:999px;border:1px solid var(--blue-m);background:var(--blue-l);color:var(--blue);font-size:13px;font-weight:700;cursor:pointer;padding:0}
+.np.on{background:var(--blue-d);color:#032a3d;border-color:var(--blue-d)}
+.sentence+.sentence{border-top:1px dashed var(--line);margin-top:6px;padding-top:12px}
+.qh{font-size:12px;color:var(--sub);margin-bottom:2px;font-weight:600}
+#qcard{padding:12px 12px 8px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.qitem{padding:8px 0;border-bottom:1px solid var(--line)}
+.qitem:last-of-type{border-bottom:0}
+.qq{font-size:14px;line-height:1.45}
+.qq b{display:inline-block;background:var(--blue-d);color:#032a3d;border-radius:7px;padding:0 6px;margin-right:6px;font-size:11px}
+.qb{display:flex;gap:5px;align-items:center;width:100%;min-height:42px;text-align:left;border:2px solid var(--blue-m);background:var(--blue-l);color:var(--blue);border-radius:9px;padding:6px 8px;margin:0;font-size:13px;font-family:inherit;cursor:pointer;line-height:1.3}
+.qb .qn{font-weight:800}
+.qb.right{background:#0f3a22;border-color:var(--ok);color:var(--ok)}
+.qb.wrong{background:#3b1220;border-color:var(--ng);color:var(--ng)}
+.qres{font-size:16px;font-weight:700;text-align:center;padding:10px 0 2px;color:var(--blue)}
+.ta-ok{font-size:13px;color:var(--sub);letter-spacing:.2em}.ta-star{font-size:30px;line-height:1.3}.ta-wpm{font-size:44px;font-weight:800;color:#fde047;line-height:1.1}.ta-wpm small{font-size:15px;color:#d4d4d8;margin-left:4px}
+.ta-det{font-size:13px;color:#d4d4d8;font-weight:400;margin-top:4px}.ta-ng{font-size:30px;font-weight:800;color:var(--ng)}
+.taov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:rgba(0,0,0,.78);z-index:3;font-size:17px;font-weight:700;color:var(--blue);line-height:1.7;cursor:pointer;border-radius:16px}
+#pcard.hide .sentence{visibility:hidden}
+.note{font-size:12px;color:var(--sub);margin-top:6px}
 </style>
 </head>
 <body>
@@ -193,7 +234,7 @@ const D = {
   "the world":["B","ザ ワールド","世界"],
   "have lived":["D","ハヴ リヴド","ずっと住んでいる"],
   "nagano":["A","ナガノ","長野"],
-  "since":["D","スィンス","以来"],
+  "since":["D","スィンス","時から"],
   "a child":["A","ア チャイルド","子ども"],
   "the book":["A","ザ ブック","本"],
   "know":["A","ノウ","知っている"],
@@ -306,6 +347,8 @@ const D = {
   "decided":["B","ディサイデッド","決めた"],"study":["A","スタディ","勉強する"],"abroad":["D","アブロード","海外で"],
   "important":["C","インポータント","重要な"],"protect":["D","プロテクト","守る"],"environment":["D","インヴァイロンメント","環境"]
 };
+const PDATA = {"passages": [{"id": "p01", "n": 2, "title": "犬", "sents": [{"raw": "I{私は} have{飼っている} a_dog.{犬を}", "seg": "私は:0;犬を:2;飼っています。:1", "quiz": {"q": "私は何を飼っていますか。", "correct": "犬", "wrong": ["猫", "鳥", "魚"]}}, {"raw": "It{それは} is{です} very{とても} cute.{かわいい}", "seg": "それは:0;とても:2;かわいい:3;です。:1", "quiz": {"q": "その犬はどんな様子ですか。", "correct": "とてもかわいい", "wrong": ["とても大きい", "とても小さい", "とてもこわい"]}}]}, {"id": "p02", "n": 2, "title": "弟の野球", "sents": [{"raw": "My{私の} brother{弟は} plays{する} baseball{野球を} / with{と} his{彼の} friends{友達} / on{に} Sundays.{日曜日}", "seg": "私の弟は:0,1;日曜日に:7,8;友達と:4,5,6;野球を:3;します。:2", "quiz": {"q": "弟はいつ野球をしますか。", "correct": "日曜日", "wrong": ["土曜日", "金曜日", "水曜日"]}}, {"raw": "He{彼は} is{です} a_good{よい} player.{選手}", "seg": "彼は:0;よい選手:2,3;です。:1", "quiz": {"q": "弟はどんな選手ですか。", "correct": "よい選手", "wrong": ["背の高い選手", "年上の選手", "新しい選手"]}}]}, {"id": "p03", "n": 2, "title": "母の夕食", "sents": [{"raw": "My{私の} mother{母は} cooks{作る} dinner{夕食を} / for{ために} our{私たちの} family{家族} / every_day.{毎日}", "seg": "私の母は:0,1;毎日:7;私たちの家族のために:4,5,6;夕食を:3;作ります。:2", "quiz": {"q": "母は毎日何を作りますか。", "correct": "夕食", "wrong": ["昼食", "朝食", "お弁当"]}}, {"raw": "I{私は} help{手伝う} her{彼女を} / in{で} the_kitchen{台所} / after_school.{放課後}", "seg": "私は:0;放課後:5;台所で:3,4;彼女を:2;手伝います。:1", "quiz": {"q": "私は放課後どこで母を手伝いますか。", "correct": "台所", "wrong": ["庭", "店", "玄関"]}}]}, {"id": "p04", "n": 3, "title": "トムの朝", "sents": [{"raw": "Tom{トムは} gets_up{起きる} at{に} six.{6時}", "seg": "トムは:0;6時に:2,3;起きます。:1", "quiz": {"q": "トムは何時に起きますか。", "correct": "6時", "wrong": ["5時", "7時", "8時"]}}, {"raw": "He{彼は} eats{食べる} breakfast.{朝食を}", "seg": "彼は:0;朝食を:2;食べます。:1", "quiz": {"q": "トムは何を食べますか。", "correct": "朝食", "wrong": ["昼食", "夕食", "おやつ"]}}, {"raw": "He{彼は} goes{行く} to{へ} school{学校} / by{で} bus.{バス}", "seg": "彼は:0;バスで:4,5;学校へ:2,3;行きます。:1", "quiz": {"q": "トムはどうやって学校へ行きますか。", "correct": "バスで行く", "wrong": ["電車で行く", "自転車で行く", "歩いて行く"]}}]}, {"id": "p05", "n": 3, "title": "動物園", "sents": [{"raw": "We{私たちは} went{行った} to{へ} the_zoo{動物園} / last_Sunday.{先週の日曜日}", "seg": "私たちは:0;先週の日曜日に:4;動物園へ:2,3;行きました。:1", "quiz": {"q": "私たちはどこへ行きましたか。", "correct": "動物園", "wrong": ["図書館", "公園", "学校"]}}, {"raw": "We{私たちは} saw{見た} a_lot_of{たくさんの} animals{動物を} there.{そこで}", "seg": "私たちは:0;そこで:4;たくさんの:2;動物を:3;見ました。:1", "quiz": {"q": "私たちは動物園で何を見ましたか。", "correct": "たくさんの動物", "wrong": ["たくさんの絵", "たくさんの本", "たくさんの車"]}}, {"raw": "My{私の} sister{姉は} saw{見た} a_monkey{サルを} / and{そして} she{彼女は} was{でした} very{とても} happy.{うれしい}", "seg": "私の姉は:0,1;サルを:3;見て、:2,4,5;とても:7;うれしかったです。:8,6", "quiz": {"q": "姉はサルを見て、どうでしたか。", "correct": "とてもうれしかった", "wrong": ["とてもこわかった", "とてもつかれた", "とてもねむかった"]}}]}, {"id": "p06", "n": 3, "title": "ユキのテニス", "sents": [{"raw": "Yuki{ユキは} and{と} her{彼女の} friends{友達} / play{する} tennis{テニスを} / after_school.{放課後}", "seg": "ユキと彼女の友達は:0,1,2,3;放課後:6;テニスを:5;します。:4", "quiz": {"q": "ユキと友達は放課後に何をしますか。", "correct": "テニスをする", "wrong": ["買い物をする", "映画を見る", "歌を歌う"]}}, {"raw": "They{彼らは} play{する} tennis{テニスを} / in{で} the_park.{公園}", "seg": "彼らは:0;公園で:3,4;テニスを:2;します。:1", "quiz": {"q": "彼らはどこでテニスをしますか。", "correct": "公園", "wrong": ["体育館", "川のそば", "駅の前"]}}, {"raw": "After{のあと} tennis,{テニス} / they{彼らは} go{行く} to{へ} the_library{図書館} / and{そして} study{勉強する} English.{英語を}", "seg": "テニスのあと、:1,0;彼らは:2;図書館へ:4,5;行って、:3,6;英語を:8;勉強します。:7", "quiz": {"q": "テニスのあと、彼らは何をしますか。", "correct": "図書館へ行って英語を勉強する", "wrong": ["家へ帰って宿題をする", "公園へ行って走る", "友達と夕食を食べる"]}}]}, {"id": "p07", "n": 4, "title": "ケンの日曜日", "sents": [{"raw": "Ken's{ケンの} house{家は} is{です} near{の近くに} the_park.{公園}", "seg": "ケンの家は:0,1;公園の近くに:3,4;あります。:2", "quiz": {"q": "ケンの家はどこにありますか。", "correct": "公園の近く", "wrong": ["駅の近く", "学校の近く", "図書館の近く"]}}, {"raw": "He{彼は} plays{する} soccer{サッカーを} / with{と} his{彼の} friends{友達} / in{で} the_park.{公園}", "seg": "彼は:0;友達と:3,4,5;公園で:6,7;サッカーを:2;します。:1", "quiz": {"q": "ケンはだれとサッカーをしますか。", "correct": "友達", "wrong": ["父", "弟", "先生"]}}, {"raw": "They{彼らは} play{遊ぶ} there{そこで} every_Sunday.{毎週日曜日}", "seg": "彼らは:0;毎週日曜日:3;そこで:2;遊びます。:1", "quiz": {"q": "ケンと友達はいつ公園で遊びますか。", "correct": "毎週日曜日", "wrong": ["毎週土曜日", "毎週金曜日", "毎週月曜日"]}}, {"raw": "After{のあと} soccer,{サッカー} / they{彼らは} go_home{帰る} / and{そして} eat{食べる} dinner.{夕食を}", "seg": "サッカーのあと、:1,0;彼らは:2;帰って、:3,4;夕食を:6;食べます。:5", "quiz": {"q": "サッカーのあと、彼らは何をしますか。", "correct": "家に帰って夕食を食べる", "wrong": ["学校へ行って勉強する", "図書館へ行って本を読む", "友達の家へ行く"]}}]}, {"id": "p08", "n": 4, "title": "土曜日の昼食", "sents": [{"raw": "On{に} Saturdays,{土曜日} / my{私の} father{父は} cooks{作る} lunch{昼食を} / for{ために} us.{私たち}", "seg": "土曜日に:0,1;私の父は:2,3;私たちのために:6,7;昼食を:5;作ります。:4", "quiz": {"q": "土曜日に父は何を作りますか。", "correct": "昼食", "wrong": ["夕食", "朝食", "おやつ"]}}, {"raw": "It{それは} is{です} very{とても} good,{おいしい} / and{そして} we{私たちは} like{好き} it.{それが}", "seg": "それは:0;とても:2;おいしくて、:1,3,4;私たちは:5;それが:7;好きです。:6", "quiz": {"q": "その昼食はどうですか。", "correct": "とてもおいしい", "wrong": ["とてもからい", "とてもあまい", "とても熱い"]}}, {"raw": "After{のあと} lunch,{昼食} / we{私たちは} go{行く} to{へ} the_park.{公園}", "seg": "昼食のあと、:1,0;私たちは:2;公園へ:4,5;行きます。:3", "quiz": {"q": "昼食のあと、私たちはどこへ行きますか。", "correct": "公園", "wrong": ["図書館", "動物園", "学校"]}}, {"raw": "My{私の} brother{弟} and{と} I{私は} / play{する} tennis{テニスを} there.{そこで}", "seg": "私の弟と私は:0,1,2,3;そこで:6;テニスを:5;します。:4", "quiz": {"q": "弟と私は公園で何をしますか。", "correct": "テニス", "wrong": ["野球", "サッカー", "バスケットボール"]}}]}, {"id": "p09", "n": 5, "title": "ミカのピアノ", "sents": [{"raw": "Mika{ミカは} is{です} my{私の} good{よい} friend.{友達}", "seg": "ミカは:0;私のよい友達:2,3,4;です。:1", "quiz": {"q": "ミカは私にとってどんな人ですか。", "correct": "友達", "wrong": ["先生", "姉", "母"]}}, {"raw": "She{彼女は} likes{好き} music.{音楽が}", "seg": "彼女は:0;音楽が:2;好きです。:1", "quiz": {"q": "ミカは何が好きですか。", "correct": "音楽", "wrong": ["数学", "野球", "料理"]}}, {"raw": "She{彼女は} plays{弾く} the_piano{ピアノを} / every_day.{毎日}", "seg": "彼女は:0;毎日:3;ピアノを:2;弾きます。:1", "quiz": {"q": "ミカはいつピアノを弾きますか。", "correct": "毎日", "wrong": ["毎週日曜日", "毎週土曜日", "毎週金曜日"]}}, {"raw": "I{私は} listen_to{聞く} her{彼女の} piano{ピアノを} / at{で} her{彼女の} house.{家}", "seg": "私は:0;彼女の家で:4,5,6;彼女のピアノを:2,3;聞きます。:1", "quiz": {"q": "私はどこでミカのピアノを聞きますか。", "correct": "ミカの家", "wrong": ["私の家", "学校", "図書館"]}}, {"raw": "She{彼女は} plays{弾く} very{とても} well.{上手に}", "seg": "彼女は:0;とても:2;上手に:3;弾きます。:1", "quiz": {"q": "ミカはどのようにピアノを弾きますか。", "correct": "とても上手に", "wrong": ["とても静かに", "とても速く", "とてもゆっくり"]}}]}, {"id": "p10", "n": 5, "title": "姉の猫", "sents": [{"raw": "My{私の} sister{姉は} has{飼っている} a_small{小さな} cat.{猫を}", "seg": "私の姉は:0,1;小さな猫を:3,4;飼っています。:2", "quiz": {"q": "だれが猫を飼っていますか。", "correct": "姉", "wrong": ["父", "母", "祖父"]}}, {"raw": "The_cat's{その猫の} name{名前は} is{です} Mimi.{ミミ}", "seg": "その猫の名前は:0,1;ミミ:3;です。:2", "quiz": {"q": "その猫の名前は何ですか。", "correct": "ミミ", "wrong": ["ココ", "ミケ", "タマ"]}}, {"raw": "Mimi{ミミは} sleeps{寝る} / on{の上で} my{私の} bed{ベッド} / every_night.{毎晩}", "seg": "ミミは:0;毎晩:5;私のベッドの上で:2,3,4;寝ます。:1", "quiz": {"q": "ミミはどこで寝ますか。", "correct": "私のベッドの上", "wrong": ["姉のベッドの上", "ソファの上", "いすの上"]}}, {"raw": "She{ミミは} is{です} very{とても} small,{小さい} / but{しかし} she{ミミは} eats{食べる} a_lot_of{たくさんの} food.{食べ物}", "seg": "ミミは:0;とても:2;小さいです:3,1;が、:4,5;たくさんの:7;食べ物を:8;食べます。:6", "quiz": {"q": "ミミはどんな猫ですか。", "correct": "小さいがたくさん食べる", "wrong": ["小さくて少ししか食べない", "大きくてよく眠る", "大きいがおとなしい"]}}, {"raw": "My{私の} sister{姉は} buys{買う} food{食べ物を} / for{ために} Mimi{ミミ} / every_week.{毎週}", "seg": "私の姉は:0,1;毎週:6;ミミのために:4,5;食べ物を:3;買います。:2", "quiz": {"q": "姉は毎週ミミのために何を買いますか。", "correct": "食べ物", "wrong": ["おもちゃ", "首輪", "ボール"]}}]}], "ta": [{"id": "ta01", "title": "うちの家族", "sents": [{"raw": "My{私の} father{父は} works{働く} / at{で} a_school{学校} / and{そして} my{私の} mother{母は} cooks{作る} dinner{夕食を} / every_day.{毎日}", "seg": "私の父は:0,1;学校で:3,4;働き、:2,5;私の母は:6,7;毎日:10;夕食を:9;作ります。:8", "quiz": {"q": "父はどこで働いていますか。", "correct": "学校", "wrong": ["病院", "店", "図書館"]}}, {"raw": "I{私は} help{手伝う} her{彼女を} / in{で} the_kitchen{台所} / after_school{放課後} / and{そして} she{彼女は} is{です} very{とても} happy.{うれしい}", "seg": "私は:0;放課後:5;台所で:3,4;彼女を:2;手伝い、:1,6;彼女は:7;とても:9;うれしいです。:10,8", "quiz": {"q": "私は放課後どこで母を手伝いますか。", "correct": "台所", "wrong": ["庭", "居間", "玄関"]}}, {"raw": "My{私の} father{父は} comes_home{家に帰る} / at{に} six{6時} / and{そして} we{私たちは} eat{食べる} dinner{夕食を} together.{いっしょに}", "seg": "私の父は:0,1;6時に:3,4;家に帰り、:2,5;私たちは:6;いっしょに:9;夕食を:8;食べます。:7", "quiz": {"q": "父は何時に家に帰りますか。", "correct": "6時", "wrong": ["5時", "7時", "8時"]}}]}, {"id": "ta02", "title": "ケンの学校", "sents": [{"raw": "Ken{ケンは} goes{行く} to{へ} school{学校} / by{で} bus{バス} / with{と} his{彼の} friends{友達} / every_day.{毎日}", "seg": "ケンは:0;毎日:9;友達と:6,7,8;バスで:4,5;学校へ:2,3;行きます。:1", "quiz": {"q": "ケンは何で学校へ行きますか。", "correct": "バス", "wrong": ["電車", "自転車", "車"]}}, {"raw": "He{彼は} likes{好き} English{英語が} / and{そして} he{彼は} reads{読む} English{英語の} books{本を} / in{で} the_library.{図書館}", "seg": "彼は:0;英語が:2;好きで、:1,3,4;図書館で:8,9;英語の本を:6,7;読みます。:5", "quiz": {"q": "ケンは図書館で何をしますか。", "correct": "本を読む", "wrong": ["絵をかく", "音楽を聞く", "昼食を食べる"]}}, {"raw": "After_school,{放課後} / I{私は} go{行く} to{へ} the_library{図書館} / with{と} Ken{ケン} / and{そして} we{私たちは} study{勉強する} hard.{一生懸命}", "seg": "放課後、:0;私は:1;ケンと:5,6;図書館へ:3,4;行き、:2,7;私たちは:8;一生懸命:10;勉強します。:9", "quiz": {"q": "私は放課後だれと図書館へ行きますか。", "correct": "ケン", "wrong": ["母", "先生", "姉"]}}]}, {"id": "ta03", "title": "友達とテニス", "sents": [{"raw": "I{私は} play{する} tennis{テニスを} / with{と} my{私の} friends{友達} / in{で} the_park{公園} / after_school.{放課後}", "seg": "私は:0;放課後:8;公園で:6,7;友達と:3,4,5;テニスを:2;します。:1", "quiz": {"q": "私は放課後どこでテニスをしますか。", "correct": "公園", "wrong": ["学校", "庭", "体育館"]}}, {"raw": "Mika{ミカは} is{です} my{私の} friend{友達} / and{そして} she{彼女は} plays{する} tennis{テニスを} very{とても} well.{上手に}", "seg": "ミカは:0;私の友達で、:2,3,1,4;とても:8;上手に:9;テニスを:7;します。:6,5", "quiz": {"q": "ミカのテニスはどうですか。", "correct": "とても上手だ", "wrong": ["少し下手だ", "まだ始めたばかりだ", "ほとんどしない"]}}, {"raw": "I{私は} want_to{したい} play{する} tennis{テニスを} well{上手に} / and{そして} I{私は} practice{練習する} / with{と} her{彼女} / every_day.{毎日}", "seg": "私は:0;上手に:4;テニスを:3;したくて、:1,2,5;毎日:10;彼女と:8,9;練習します。:7,6", "quiz": {"q": "私は毎日だれと練習しますか。", "correct": "ミカ", "wrong": ["母", "姉", "先生"]}}]}, {"id": "ta04", "title": "動物園", "sents": [{"raw": "I{私は} went{行った} to{へ} the_zoo{動物園} / on{に} Sunday{日曜日} / with{と} my{私の} family.{家族}", "seg": "私は:0;日曜日に:4,5;家族と:6,7,8;動物園へ:2,3;行きました。:1", "quiz": {"q": "私はいつ動物園へ行きましたか。", "correct": "日曜日", "wrong": ["土曜日", "金曜日", "月曜日"]}}, {"raw": "We{私たちは} saw{見た} many{たくさんの} animals{動物を} there{そこで} / and{そして} a_monkey{サル} was{でした} very{とても} cute.{かわいい}", "seg": "私たちは:0;そこで:4;たくさんの動物を:2,3;見て、:1,5;サルは:6;とても:8;かわいかったです。:9,7", "quiz": {"q": "動物園でとてもかわいかったのは何ですか。", "correct": "サル", "wrong": ["ライオン", "ゾウ", "ペンギン"]}}, {"raw": "My{私の} sister{姉は} looked_at{見た} it{それを} / for{間} two{2} hours{時間} / and{そして} she{彼女は} was{でした} very{とても} happy.{うれしい}", "seg": "私の姉は:0,1;2時間:4,5,6;それを:3;見て、:2,7;とても:10;うれしかったです。:11,9,8", "quiz": {"q": "姉はサルを何時間見ましたか。", "correct": "2時間", "wrong": ["1時間", "3時間", "5時間"]}}]}], "newWords": {"a dog": ["A", "ア ドッグ", "犬"], "have": ["A", "ハヴ", "持っている"], "cute": ["A", "キュート", "かわいい"], "player": ["A", "プレイヤー", "選手"], "eats": ["A", "イーツ", "食べる"], "goes": ["A", "ゴウズ", "行く"], "tom": ["A", "トム", "トム"], "ken": ["A", "ケン", "ケン"], "mika": ["A", "ミカ", "ミカ"], "yuki": ["A", "ユキ", "ユキ"], "mimi": ["A", "ミミ", "ミミ"], "happy": ["A", "ハッピー", "うれしい"], "a monkey": ["A", "ア モンキー", "サル"], "ken's": ["A", "ケンズ", "ケンの"], "a small": ["A", "ア スモール", "小さな"], "has": ["A", "ハズ", "持っている"], "house": ["A", "ハウス", "家"], "near": ["A", "ニア", "の近くに"], "sundays": ["A", "サンデーズ", "日曜日"], "saturdays": ["A", "サタデーズ", "土曜日"], "every sunday": ["A", "エヴリ サンデー", "毎週日曜日"], "well": ["A", "ウェル", "上手に"], "good": ["A", "グッド", "よい"], "cat": ["A", "キャット", "猫"], "the cat's": ["A", "ザ キャッツ", "その猫の"], "name": ["A", "ネーム", "名前"], "sleeps": ["A", "スリープス", "寝る"], "bed": ["A", "ベッド", "ベッド"], "small": ["A", "スモール", "小さい"], "food": ["A", "フード", "食べ物"], "buys": ["A", "バイズ", "買う"], "comes home": ["A", "カムズ ホーム", "家に帰る"], "together": ["A", "トゥゲザー", "いっしょに"], "practice": ["A", "プラクティス", "練習する"]}};
+Object.entries(PDATA.newWords||{}).forEach(([k,v])=>{ if(!D[k]) D[k]=v; });
 
 // ===== 熟語（セット表現）リスト：[英語, カタカナ, 訳, レベル]   [a|b|c]=活用・言いかえ（英語・カタカナ・訳で同じ順）
 // この語順で文に並んでいれば自動で1かたまり（1回のフリック）になる
@@ -463,12 +506,12 @@ const RAW = [
   ["I{私は} have_visited{訪れたことがある} Kyoto{京都を} / three_times.{三回}", "私は:0;京都を:2;三回:3;訪れたことがあります。:1"],
   ["The_boy{少年は} standing{立っている} there{そこに} / is{です} my{私の} brother.{弟}", "そこに:2;立っている:1;少年は:0;私の弟:4,5;です。:3"],
   ["English{英語は} is_spoken{話されている} in{で} many{多くの} countries{国} / around{のまわりの} the_world.{世界}", "英語は:0;世界中の:5,6;多くの:3;国で:2,4;話されています。:1"],
-  ["I{私は} have_lived{ずっと住んでいる} in{に} Nagano{長野} / since{以来} I{私が} was{でした} a_child.{子ども}", "私は:0;子どものころ:5,6,7;から:4;長野に:2,3;ずっと住んでいます。:1"],
+  ["I{私は} have_lived{ずっと住んでいる} in{に} Nagano{長野} / since{時から} I{私が} was{でした} a_child.{子ども}", "私は:0;子どものころ:5,6,7;から:4;長野に:2,3;ずっと住んでいます。:1"],
   ["This{これは} is{です} the_book{本} / that{} I{私が} have_read{読んだことがある} many_times.{何度も}", "これは:0;私が:4;何度も:6;読んだことがある:3,5;本です。:2,1"],
   ["I{私は} know{知っている} the_boy{少年を} / who{} lives{住んでいる} next_door{隣に} / and{そして} plays{する} soccer{サッカーを} / every_day.{毎日}", "私は:0;隣に:5;住んでいて、:3,4;毎日:9;サッカーを:8;する:6,7;少年を:2;知っています。:1"],
   ["This{これは} is{です} the_picture{絵} / which{} was_painted{描かれた} by{によって} my{私の} grandfather{祖父} / when{とき} he{彼が} was{でした} young.{若い}", "これは:0;私の祖父によって:5,6,7;彼が:9;若かったとき:10,11,8;描かれた:3,4;絵です。:1,2"],
   ["My{私の} father{父は} has_been_to{行ったことがある} Tokyo{東京} / many_times,{何度も} / but{しかし} I{私は} have_never_been{一度も行ったことがない} there.{そこに}", "父は:0,1;何度も:4;東京に:3;行ったことがありますが、:2,5;私は:6;そこへ:8;一度も行ったことがありません。:7"],
-  ["I{私は} have_wanted{ずっと欲しかった} this{この} bike{自転車を} / since{以来} I{私が} was{でした} a_child,{子ども} / and{そして} finally{ついに} I{私は} got{手に入れた} it{それを} / yesterday.{昨日}", "私は:0;子どものころから:4,5,6,7;この自転車が:2,3;ずっと欲しくて、:1,8;昨日:13;ついに:9;それを:12;手に入れました。:10,11"],
+  ["I{私は} have_wanted{ずっと欲しかった} this{この} bike{自転車を} / since{時から} I{私が} was{でした} a_child,{子ども} / and{そして} finally{ついに} I{私は} got{手に入れた} it{それを} / yesterday.{昨日}", "私は:0;子どものころから:4,5,6,7;この自転車が:2,3;ずっと欲しくて、:1,8;昨日:13;ついに:9;それを:12;手に入れました。:10,11"],
   ["This{この} temple{寺は} was_built{建てられた} four_hundred_years_ago{四百年前に} / and{そして} it{それは} is_visited{訪れられている} by{によって} many{多くの} people{人々} / every_year.{毎年}", "この寺は:0,1;四百年前に:3;建てられ、:2,4;毎年:10;多くの人々に:7,8,9;訪れられています。:5,6"],
   ["The_girl{少女は} who{} is_standing{立っている} by{のそばに} the_window{窓} / is{です} my{私の} classmate{同級生} / and{そして} has_lived{住んでいる} in{に} Canada.{カナダ}", "窓のそばに:3,4;立っている:1,2;少女は:0;私の同級生で、:5,6,7,8;カナダに:10,11;住んでいたことがあります。:9"],
   ["Experience{経験は} is{です} important.{大切}", "経験は:0;大切です。:1,2"],
@@ -491,7 +534,7 @@ const LV = {A:1,B:2,C:3,D:4,E:5};
 const CIRC=["①","②","③","④","⑤"];
 const LVNAME={A:"中1全体",B:"中2初級",C:"中2全体",D:"中3初級",E:"高校入試"};
 const bandOf=n=>Math.min(5,Math.max(1,Math.floor((n-3)/3)+1));
-const SENTS = RAW.map(([raw,segstr],idx)=>{
+function buildSent(raw,segstr,idx){
   const segs=segstr.split(";").map(x=>{const [t,u]=x.split(":");return {t,u:u.split(",").map(Number)};});
   const full=segs.map(g=>g.t).join("");
   const tokens=[];
@@ -510,7 +553,21 @@ const SENTS = RAW.map(([raw,segstr],idx)=>{
   const en=tokens.map(t=>t.slash?"/":t.w).join(" ");
   const band=bandOf(wc);
   return {id:idx,raw:en,en,full,segs,tokens,n:words.length,wc,lv,band,key:band+lv,label:lv+band};
+}
+const SENTS = RAW.map(([raw,segstr],idx)=>buildSent(raw,segstr,idx));
+const PASSAGES = (PDATA.passages||[]).map((p,pi)=>{
+  const sents=p.sents.map((x,si)=>buildSent(x.raw,x.seg,1000+pi*10+si));
+  const n=sents.reduce((a,s)=>a+s.n,0), wc=sents.reduce((a,s)=>a+s.wc,0);
+  let lv="A"; sents.forEach(s=>{ if(LV[s.lv]>LV[lv]) lv=s.lv; });
+  const band=bandOf(Math.round(wc/sents.length));
+  return {id:"p"+pi,pid:p.id,title:p.title,sents,quiz:p.sents.map(x=>x.quiz),n,lv,band,key:band+lv,label:lv+band,ns:sents.length};
 });
+const TAS=(PDATA.ta||[]).map((p,pi)=>{
+  const sents=p.sents.map((x,si)=>buildSent(x.raw,x.seg,2000+pi*10+si));
+  const n=sents.reduce((a,s)=>a+s.n,0), wc=sents.reduce((a,s)=>a+s.wc,0);
+  return {id:"t"+pi,pid:p.id,title:p.title,sents,quiz:p.sents.map(x=>x.quiz),n,wc,lv:"A",band:5,label:"TA",ns:sents.length,ta:true};
+});
+const wrap=s=>({sents:[s],n:s.n,lv:s.lv,band:s.band,label:s.label,id:s.id,single:true});
 
 // 単語ストックの表示用：文中で大文字で書かれる語（I, 固有名詞）は大文字で出す
 const CAP=new Set(["i"]);
@@ -546,7 +603,7 @@ function say(text,lang,rate,voice){
 }
 
 // 読み上げ用の読み（漢字の誤読を防ぐ）
-const YOMI={"昨日":"きのう","訪れるだろう":"おとずれるだろう","京都を":"きょうとを","買った":"かった","新しい":"あたらしい","自転車を":"じてんしゃを","手伝った":"てつだった","母を":"ははを","明日":"あした","行くだろう":"いくだろう","忙しい":"いそがしい","来なかった":"こなかった","作った":"つくった","家に":"いえに","雨が降る":"あめがふる","映画を":"えいがを","弟は":"おとうとは","遊ばなかった":"あそばなかった","食べた":"たべた","私を":"わたしを","掃除した":"そうじした","台所を":"だいどころを","泊まるだろう":"とまるだろう","先週の日曜日":"せんしゅうのにちようび","家を":"いえを","勉強するべき":"べんきょうするべき","背が高い":"せがたかい","私":"わたし","最もよい":"もっともよい","勉強しなければ":"べんきょうしなければ","姉は":"あねは","思う":"おもう","英語は":"えいごは","もっと面白い":"もっとおもしろい","一番背が高い":"いちばんせがたかい","疲れている":"つかれている","寝るべき":"ねるべき","早く":"はやく","先生に":"せんせいに","助ける":"たすける","人々を":"ひとびとを","読むこと":"よむこと","最も":"もっとも","人気のある":"にんきのある","歌手":"かしゅ","彼女を":"かのじょを","医者に":"いしゃに","将来":"しょうらい","大切な":"たいせつな","教科":"きょうか","話せる":"はなせる","人々":"ひとびと","保たなければ":"たもたなければ","町を":"まちを","私たち":"わたしたち","お米は":"おこめは","育てられる":"そだてられる","終えた":"おえた","ずっと住んでいる":"ずっとすんでいる","本は":"ほんは","書かれた":"かかれた","有名な":"ゆうめいな","医者":"いしゃ","訪れたことがある":"おとずれたことがある","三回":"さんかい","少年は":"しょうねんは","立っている":"たっている","話されている":"はなされている","国":"くに","世界":"せかい","長野":"ながの","以来":"いらい","私が":"わたしが","子ども":"こども","読んだことがある":"よんだことがある","何度も":"なんども","知っている":"しっている","少年を":"しょうねんを","住んでいる":"すんでいる","隣に":"となりに","絵":"え","描かれた":"えがかれた","祖父":"そふ","彼が":"かれが","若い":"わかい","父は":"ちちは","行ったことがある":"いったことがある","東京":"とうきょう","一度も行ったことがない":"いちどもいったことがない","ずっと欲しかった":"ずっとほしかった","手に入れた":"てにいれた","寺は":"てらは","建てられた":"たてられた","四百年前に":"よんひゃくねんまえに","訪れられている":"おとずれられている","毎年":"まいとし","少女は":"しょうじょは","窓":"まど","同級生":"どうきゅうせい","経験は":"けいけんは","必要とする":"ひつようとする","機会":"きかい","願う":"ねがう","お金持ち":"おかねもち","歩くには":"あるくには","家まで":"いえまで","年齢":"ねんれい","十分":"じゅうぶん","運転するのに":"うんてんするのに","車を":"くるまを","知らない":"しらない","来る":"くる","へとへとに疲れて":"へとへとにつかれて","寝た":"ねた","必要":"ひつよう","意思疎通すること":"いしそつうすること","勉強するだろう":"べんきょうするだろう","もっと一生懸命":"もっといっしょうけんめい","試験":"しけん","宿題を":"しゅくだいを","ずっと勉強している":"ずっとべんきょうしている","通訳者":"つうやくしゃ","学んでいる":"まなんでいる","意思疎通する":"いしそつうする","と同じくらい上手に":"とおなじくらいじょうずに","見つけた":"みつけた","時間を":"じかんを","子どもたちを":"こどもたちを","彼らの":"かれらの","宿題":"しゅくだい","若い女性は":"わかいじょせいは","言った":"いった","私たちに":"わたしたちに","会議":"かいぎ","中止になった":"ちゅうしになった","私は":"わたしは","好き":"すき","犬が":"いぬが","楽しむ":"たのしむ","彼は":"かれは","決めた":"きめた","勉強する":"べんきょうする","海外で":"かいがいで","行った":"いった","図書館":"としょかん","私の":"わたしの","友達":"ともだち","放課後":"ほうかご","母が":"ははが","作る":"つくる","夕食を":"ゆうしょくを","毎日":"まいにち","私たちは":"わたしたちは","公園":"こうえん","少年が":"しょうねんが","隣の":"となりの","疲れて":"つかれて","一生懸命":"いっしょうけんめい","勉強した":"べんきょうした","彼女は":"かのじょは","得意だ":"とくいだ","歌うこと":"うたうこと","踊ること":"おどること","興味がある":"きょうみがある","音楽に":"おんがくに","弾く":"ひく","大切":"たいせつ","守ること":"まもること","環境を":"かんきょうを","起きる":"おきる","6時":"ろくじ","行く":"いく","学校":"がっこう","読む":"よむ","本を":"ほんを","彼女の":"かのじょの","部屋":"へや","姉が":"あねが","音楽が":"おんがくが","食べる":"たべる","朝食を":"ちょうしょくを","日曜日":"にちようび","私たちの":"わたしたちの","父が":"ちちが","働く":"はたらく","先生":"せんせい","家族":"かぞく","弟が":"おとうとが","野球が":"やきゅうが","彼の":"かれの","土曜日":"どようび","動物園":"どうぶつえん","見た":"みた","動物":"どうぶつ","台所":"だいどころ","作っている":"つくっている","昼食を":"ちゅうしょくを","多くの":"おおくの","生徒が":"せいとが","歩く":"あるく","何人かの":"なんにんかの","前に":"まえに","午後":"ごご","夕食":"ゆうしょく","生徒":"せいと","英語を":"えいごを","好きではない":"すきではない","数学が":"すうがくが","読んだ":"よんだ","時間":"じかん","2":"に","弟":"おとうと","姉":"あね","朝食":"ちょうしょく","父":"ちち","本":"ほん","野球":"やきゅう","英語":"えいご","数学":"すうがく","環境":"かんきょう","少年":"しょうねん","音楽":"おんがく","疲れた":"つかれた","犬":"いぬ","母":"はは","料理する":"りょうりする","毎":"まい","日":"ひ","1つの":"ひとつの","の中で":"のなかで","のあとで":"のあとで","昼食":"ちゅうしょく","彼らは":"かれらは","訪れる":"おとずれる","京都":"きょうと","次の":"つぎの","夏":"なつ","重要な":"じゅうような","守る":"まもる","家で":"いえで","帰る":"かえる","の前に":"のまえに","今朝":"けさ","今日の午後":"きょうのごご","今夜":"こんや","昨年":"さくねん","先週":"せんしゅう","昨夜":"さくや","先月":"せんげつ","来週":"らいしゅう","来年":"らいねん","来月":"らいげつ","毎朝":"まいあさ","毎週":"まいしゅう","毎晩":"まいばん","見る":"みる","聞く":"きく","待つ":"まつ","探す":"さがす","出身だ":"しゅっしんだ","寝る":"ねる","何時":"なんじ","するのが好き":"するのがすき","楽しい時を過ごす":"たのしいときをすごす","世話をする":"せわをする","楽しみにする":"たのしみにする","が好き":"がすき"};
+const YOMI={"昨日":"きのう","訪れるだろう":"おとずれるだろう","京都を":"きょうとを","買った":"かった","新しい":"あたらしい","自転車を":"じてんしゃを","手伝った":"てつだった","母を":"ははを","明日":"あした","行くだろう":"いくだろう","忙しい":"いそがしい","来なかった":"こなかった","作った":"つくった","家に":"いえに","雨が降る":"あめがふる","映画を":"えいがを","弟は":"おとうとは","遊ばなかった":"あそばなかった","食べた":"たべた","私を":"わたしを","掃除した":"そうじした","台所を":"だいどころを","泊まるだろう":"とまるだろう","先週の日曜日":"せんしゅうのにちようび","家を":"いえを","勉強するべき":"べんきょうするべき","背が高い":"せがたかい","私":"わたし","最もよい":"もっともよい","勉強しなければ":"べんきょうしなければ","姉は":"あねは","思う":"おもう","英語は":"えいごは","もっと面白い":"もっとおもしろい","一番背が高い":"いちばんせがたかい","疲れている":"つかれている","寝るべき":"ねるべき","早く":"はやく","先生に":"せんせいに","助ける":"たすける","人々を":"ひとびとを","読むこと":"よむこと","最も":"もっとも","人気のある":"にんきのある","歌手":"かしゅ","彼女を":"かのじょを","医者に":"いしゃに","将来":"しょうらい","大切な":"たいせつな","教科":"きょうか","話せる":"はなせる","人々":"ひとびと","保たなければ":"たもたなければ","町を":"まちを","私たち":"わたしたち","お米は":"おこめは","育てられる":"そだてられる","終えた":"おえた","ずっと住んでいる":"ずっとすんでいる","本は":"ほんは","書かれた":"かかれた","有名な":"ゆうめいな","医者":"いしゃ","訪れたことがある":"おとずれたことがある","三回":"さんかい","少年は":"しょうねんは","立っている":"たっている","話されている":"はなされている","国":"くに","世界":"せかい","長野":"ながの","以来":"いらい","時から":"ときから","私が":"わたしが","子ども":"こども","読んだことがある":"よんだことがある","何度も":"なんども","知っている":"しっている","少年を":"しょうねんを","住んでいる":"すんでいる","隣に":"となりに","絵":"え","描かれた":"えがかれた","祖父":"そふ","彼が":"かれが","若い":"わかい","父は":"ちちは","行ったことがある":"いったことがある","東京":"とうきょう","一度も行ったことがない":"いちどもいったことがない","ずっと欲しかった":"ずっとほしかった","手に入れた":"てにいれた","寺は":"てらは","建てられた":"たてられた","四百年前に":"よんひゃくねんまえに","訪れられている":"おとずれられている","毎年":"まいとし","少女は":"しょうじょは","窓":"まど","同級生":"どうきゅうせい","経験は":"けいけんは","必要とする":"ひつようとする","機会":"きかい","願う":"ねがう","お金持ち":"おかねもち","歩くには":"あるくには","家まで":"いえまで","年齢":"ねんれい","十分":"じゅうぶん","運転するのに":"うんてんするのに","車を":"くるまを","知らない":"しらない","来る":"くる","へとへとに疲れて":"へとへとにつかれて","寝た":"ねた","必要":"ひつよう","意思疎通すること":"いしそつうすること","勉強するだろう":"べんきょうするだろう","もっと一生懸命":"もっといっしょうけんめい","試験":"しけん","宿題を":"しゅくだいを","ずっと勉強している":"ずっとべんきょうしている","通訳者":"つうやくしゃ","学んでいる":"まなんでいる","意思疎通する":"いしそつうする","と同じくらい上手に":"とおなじくらいじょうずに","見つけた":"みつけた","時間を":"じかんを","子どもたちを":"こどもたちを","彼らの":"かれらの","宿題":"しゅくだい","若い女性は":"わかいじょせいは","言った":"いった","私たちに":"わたしたちに","会議":"かいぎ","中止になった":"ちゅうしになった","私は":"わたしは","好き":"すき","犬が":"いぬが","楽しむ":"たのしむ","彼は":"かれは","決めた":"きめた","勉強する":"べんきょうする","海外で":"かいがいで","行った":"いった","図書館":"としょかん","私の":"わたしの","友達":"ともだち","放課後":"ほうかご","母が":"ははが","作る":"つくる","夕食を":"ゆうしょくを","毎日":"まいにち","私たちは":"わたしたちは","公園":"こうえん","少年が":"しょうねんが","隣の":"となりの","疲れて":"つかれて","一生懸命":"いっしょうけんめい","勉強した":"べんきょうした","彼女は":"かのじょは","得意だ":"とくいだ","歌うこと":"うたうこと","踊ること":"おどること","興味がある":"きょうみがある","音楽に":"おんがくに","弾く":"ひく","大切":"たいせつ","守ること":"まもること","環境を":"かんきょうを","起きる":"おきる","6時":"ろくじ","行く":"いく","学校":"がっこう","読む":"よむ","本を":"ほんを","彼女の":"かのじょの","部屋":"へや","姉が":"あねが","音楽が":"おんがくが","食べる":"たべる","朝食を":"ちょうしょくを","日曜日":"にちようび","私たちの":"わたしたちの","父が":"ちちが","働く":"はたらく","先生":"せんせい","家族":"かぞく","弟が":"おとうとが","野球が":"やきゅうが","彼の":"かれの","土曜日":"どようび","動物園":"どうぶつえん","見た":"みた","動物":"どうぶつ","台所":"だいどころ","作っている":"つくっている","昼食を":"ちゅうしょくを","多くの":"おおくの","生徒が":"せいとが","歩く":"あるく","何人かの":"なんにんかの","前に":"まえに","午後":"ごご","夕食":"ゆうしょく","生徒":"せいと","英語を":"えいごを","好きではない":"すきではない","数学が":"すうがくが","読んだ":"よんだ","時間":"じかん","2":"に","弟":"おとうと","姉":"あね","朝食":"ちょうしょく","父":"ちち","本":"ほん","野球":"やきゅう","英語":"えいご","数学":"すうがく","環境":"かんきょう","少年":"しょうねん","音楽":"おんがく","疲れた":"つかれた","犬":"いぬ","母":"はは","料理する":"りょうりする","毎":"まい","日":"ひ","1つの":"ひとつの","の中で":"のなかで","のあとで":"のあとで","昼食":"ちゅうしょく","彼らは":"かれらは","訪れる":"おとずれる","京都":"きょうと","次の":"つぎの","夏":"なつ","重要な":"じゅうような","守る":"まもる","家で":"いえで","帰る":"かえる","の前に":"のまえに","今朝":"けさ","今日の午後":"きょうのごご","今夜":"こんや","昨年":"さくねん","先週":"せんしゅう","昨夜":"さくや","先月":"せんげつ","来週":"らいしゅう","来年":"らいねん","来月":"らいげつ","毎朝":"まいあさ","毎週":"まいしゅう","毎晩":"まいばん","見る":"みる","聞く":"きく","待つ":"まつ","探す":"さがす","出身だ":"しゅっしんだ","寝る":"ねる","何時":"なんじ","するのが好き":"するのがすき","楽しい時を過ごす":"たのしいときをすごす","世話をする":"せわをする","楽しみにする":"たのしみにする","が好き":"がすき"};
 const yomi=t=>YOMI[t]||t;
 // 端末にある音声から、自然に聞こえるものを優先して選ぶ
 const VOICE_PREF={
@@ -638,45 +695,55 @@ function celebrate(card){ chime(); }
 
 /* ===== 状態 ===== */
 const app=document.getElementById("app");
-let sel={cells:new Set(),sound:true,voice:true};
+let sel={cells:new Set(),sound:true,voice:true,n:1};
+let stage="read",lastFin=null,qz=[],taTimer=null;
 let queue=[],qi=0,ans={},finished=false,tStart=0,tEnd=null;
 let stockTab="words";
 
 const $=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstChild;};
 const SET=5;
-const pool=()=>SENTS.filter(s=>sel.cells.has(s.key));
+const pool=()=>sel.n===1?SENTS.filter(s=>sel.cells.has(s.key)).map(wrap):PASSAGES.filter(p=>p.ns===sel.n&&sel.cells.has(p.key));
+const cellCount=k=>sel.n===1?SENTS.filter(x=>x.key===k).length:PASSAGES.filter(x=>x.key===k&&x.ns===sel.n).length;
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 /* ===== トップ ===== */
 function home(){
+  clearInterval(taTimer);
   const nWords=Object.keys(mem.words).length, nSents=Object.keys(mem.sents).length;
   app.innerHTML=`
-    <div class="hd"><h1>スラッシュリーディング練習</h1><div class="sndg"><button class="snd ${sel.sound?"on":""}" id="snd">効果音 ${sel.sound?"ON":"OFF"}</button></div></div>
-    <div class="card gcard">
+    <div class="hd"><span class="pgname">トップ画面</span><h1 class="logo-sign" style="margin:2px 0"><span class="lg-row"><span class="lg-t s"><span class="t1">学</span><span class="t2">習</span><span class="t3">空</span><span class="t4">間</span></span><span class="lg-name">稲里教室</span></span><span class="lg-t"><span class="t1">フ</span><span class="t2">リ</span><span class="t3">ッ</span><span class="t4">ク</span><span class="t1">リ</span><span class="t2">ー</span><span class="t3">デ</span><span class="t4">ィ</span><span class="t1">ン</span><span class="t2">グ</span></span></h1><div class="hr"><div class="sndg"><button class="snd ${sel.sound?"on":""}" id="snd">効果音 ${sel.sound?"ON":"OFF"}</button></div>
+      <div class="nsel"><span class="nl">文数</span>${[1,2,3,4,5].map(k=>`<button class="np ${sel.n===k?"on":""}" data-n="${k}">${k}</button>`).join("")}<button class="np ta ${sel.n==="TA"?"on":""}" data-n="TA">TA</button></div></div></div>
+    ${sel.n==="TA"?`<div class="card"><div class="qh">⏱ TA（タイムアタック）</div>
+      <div style="font-size:14px;line-height:1.8">10〜15語の文が3文。読みはじめから読み終わりまでの時間で、<b>1分に何語読めるか</b>を測ります。<br>読み終わったらクイズ3問。<b>全問正解しないと結果は見られず、失敗</b>になります。<br>各語を下にフリック（わかる）／上にフリック（わからない）。</div>
+      <div class="note">${mem.taBest?"ベスト："+mem.taBest+"語/分":"まだ記録がありません"}　／　星5つ：80語/分以上</div></div>`:`<div class="card gcard">
       <button class="clr" id="clr">クリア</button>
       <div class="lvgrid" id="grid">
         <div></div>
         ${[1,2,3,4,5].map(b=>`<button class="gh" data-col="${b}">${CIRC[b-1]}<small>${3*b}〜${3*b+2}語</small></button>`).join("")}
         ${["A","B","C","D","E"].map(l=>`<button class="gh rh" data-row="${l}">${l}<small>${LVNAME[l]}</small></button>`+[1,2,3,4,5].map(b=>{
-          const k=b+l, n=SENTS.filter(x=>x.key===k).length;
+          const k=b+l, n=cellCount(k);
           return `<button class="gc ${n?(sel.cells.has(k)?"on":""):"empty"}" data-k="${k}" ${n?"":"disabled"}>${l}${b}</button>`;}).join("")).join("")}
       </div>
-    </div>
-    <div class="row row3">
+    </div>`}
+    ${sel.n!==1&&sel.n!=="TA"?`<div class="note">文数${sel.n}：内容がつながった${sel.n}文の文章を読み、読み終わると${sel.n}問のクイズが出ます（サンプルはレベルAのみ）</div>`:""}
+    <div class="row row3" style="margin-top:12px">
       <button class="btn" id="start">スタート</button>
       <button class="btn sec" id="stockBtn">単語ストック</button>
       <button class="btn sec" id="stockSent">英文ストック</button>
     </div>`;
+  if(sel.n!=="TA") [...sel.cells].forEach(k=>{ if(!cellCount(k)) sel.cells.delete(k); });
+  app.querySelectorAll(".np").forEach(b=>b.onclick=()=>{sel.n=b.dataset.n==="TA"?"TA":+b.dataset.n;home();});
   const cellKeys=()=>[...app.querySelectorAll(".gc:not(.empty)")].map(e=>e.dataset.k);
   app.querySelectorAll(".gc:not(.empty)").forEach(b=>b.onclick=()=>{const k=b.dataset.k; sel.cells.has(k)?sel.cells.delete(k):sel.cells.add(k); home();});
   const toggleGroup=ks=>{ if(!ks.length) return; const all=ks.every(k=>sel.cells.has(k)); ks.forEach(k=>all?sel.cells.delete(k):sel.cells.add(k)); home(); };
   app.querySelectorAll("[data-col]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[0]===b.dataset.col)));
   app.querySelectorAll("[data-row]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[1]===b.dataset.row)));
-  document.getElementById("clr").onclick=()=>{sel.cells.clear();home();};
+  {const _c=document.getElementById("clr"); if(_c) _c.onclick=()=>{sel.cells.clear();home();};}
   document.getElementById("snd").onclick=()=>{sel.sound=!sel.sound;home();};
   document.getElementById("start").onclick=()=>{
+    if(sel.n==="TA"){ if(!TAS.length) return; startQueue([shuffle(TAS)[0]]); return; }
     const p=pool(); if(!p.length){const g=document.getElementById("grid");g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");return;}
-    startQueue(shuffle(p).slice(0,SET));
+    startQueue(shuffle(p).slice(0,sel.n===1?SET:3));
   };
   document.getElementById("stockBtn").onclick=stock;
   document.getElementById("stockSent").onclick=()=>{stockTab="sents";stock();};
@@ -686,30 +753,39 @@ function startQueue(q){queue=q;qi=0;comboN=0;practice();}
 
 /* ===== 練習 ===== */
 function practice(){ comboN=0;
-  const s=queue[qi]; ans={}; finished=false; tStart=performance.now(); tEnd=null;
+  const it=queue[qi]; ans={}; finished=false; tStart=performance.now(); tEnd=null; stage="read"; lastFin=null;
   app.innerHTML=`
     <div class="top">
       <button class="btn small sec" id="back">← トップ</button>
-      <div><span class="badge">${s.label}</span> <span class="sub">${qi+1} / ${queue.length}</span></div>
+      <div><span class="badge">${it.label}</span> <span class="sub" id="taclock">${it.ta?"⏱ 0.0秒":(it.sents.length>1?it.sents.length+"文　":"")+(it.ta?"":qi+1+" / "+queue.length)}</span></div>
     </div>
-    <div class="card" id="pcard">
-      <div class="sentence" id="sent"></div>
-    </div>
+    <div class="card" id="pcard"></div>
     <div class="finish hidden" id="fin"></div>`;
   document.getElementById("back").onclick=home;
-  const box=document.getElementById("sent");
+  const pc=document.getElementById("pcard");
   let wi=0;
-  s.tokens.forEach((t,ti)=>{
-    if(t.slash){ const sp=document.createElement("span"); sp.className="slash"; sp.id="sl"+ti; sp.innerHTML="<i></i><b>/</b>"; box.appendChild(sp); return; }
-    const i=wi++; const d=D[t.key]||["A","?","?"];
-    const c=$(`<div class="cell" id="c${i}">
-      <div class="wk"><div class="kana">${d[1]}</div>
-      <button class="word${t.idiom?" idiom":""}">${esc(t.w)}</button></div>
-      <div class="ja">${esc(t.ja)}</div></div>`);
-    attachSwipe(c.querySelector(".word"),i,t.w);
-    box.appendChild(c);
+  it.sents.forEach((s,si)=>{
+    const box=document.createElement("div"); box.className="sentence"; pc.appendChild(box);
+    s.tokens.forEach((t,ti)=>{
+      if(t.slash){ const sp=document.createElement("span"); sp.className="slash"; sp.id="sl"+si+"_"+ti; sp.innerHTML="<i></i><b>/</b>"; box.appendChild(sp); return; }
+      const i=wi++; const d=D[t.key]||["A","?","?"];
+      const c=$(`<div class="cell" id="c${i}">
+        <div class="wk"><div class="kana">${d[1]}</div>
+        <button class="word${t.idiom?" idiom":""}${t.w.replace(/[^A-Za-z]/g,"").length<=2?" short":""}">${esc(t.w)}</button></div>
+        <div class="ja">${esc(t.ja)}</div></div>`);
+      attachSwipe(c.querySelector(".word"),i,t.w);
+      box.appendChild(c);
+    });
   });
   fitSentence();
+  clearInterval(taTimer);
+  if(it.ta){
+    pc.classList.add("hide"); pc.style.position="relative";
+    const ov=document.createElement("div"); ov.className="taov"; ov.id="taov"; ov.innerHTML="⏱ 準備ができたらタップ<br>スタートすると文章が出て、<br>時間が動きはじめます";
+    pc.appendChild(ov);
+    ov.addEventListener("pointerdown",e=>{ e.stopPropagation(); audio();unlockSpeech(); ov.remove(); pc.classList.remove("hide"); tStart=performance.now();
+      taTimer=setInterval(()=>{ const c=document.getElementById("taclock"); if(c&&tEnd===null) c.textContent="⏱ "+((performance.now()-tStart)/1000).toFixed(1)+"秒"; },100); });
+  }
 }
 
 // 長い文でも画面に収まるよう、文字の大きさを自動で小さくする（枠の中はスクロールさせないため）
@@ -717,7 +793,8 @@ function fitSentence(){
   const pc=document.getElementById("pcard"); if(!pc) return;
   let fs=26; pc.style.setProperty("--wfs",fs+"px");
   const room=()=>pc.getBoundingClientRect().bottom+window.scrollY<=window.innerHeight-132;
-  while(fs>16 && !room()){ fs-=2; pc.style.setProperty("--wfs",fs+"px"); }
+  const mn=(queue[qi]&&queue[qi].sents.length>1)?14:16;
+  while(fs>mn && !room()){ fs-=2; pc.style.setProperty("--wfs",fs+"px"); }
 }
 window.addEventListener("resize",()=>{ if(document.getElementById("pcard")) fitSentence(); });
 function attachSwipe(w,i,text){
@@ -741,6 +818,7 @@ function attachSwipe(w,i,text){
   w.addEventListener("pointerup",end); w.addEventListener("pointercancel",end);
 }
 function answer(i,v){
+  if(document.getElementById("taov")) return;
   ans[i]=v;
   const c=document.getElementById("c"+i);
   c.classList.remove("ok","ng"); c.classList.add("done",v);
@@ -757,59 +835,134 @@ function evalSentence(s,ans,ms){
   const sec=ms/1000, r=sec/exp;
   const sp=Math.max(0,Math.min(1,(2-r)/1.4));                // 速さ点：目安の0.6倍以下で満点、2倍以上で0
   const score=Math.round(100*(0.7*u+0.3*sp));
-  const fast=r<=1;
-  let label,cls;
-  if(fast&&u>=0.8){ label=(r<=0.6&&u===1)?"はやうますぎ":"はやうま"; cls=(label==="はやうますぎ")?"s":"g"; }
-  else if(fast){ label="はやへた"; cls="b"; }
-  else if(u>=0.8){ label="おそうま"; cls="g"; }
-  else { label=(r>1.8&&u<0.5)?"おそへたすぎ":"おそへた"; cls="b"; }
+  const label="",cls="";
   return {label,cls,score,ok,n,sec,exp,w,pts:Math.round(score*w)};
 }
 function refreshSlashes(){
-  const s=queue[qi]; let wi=0,start=0;
-  const chunks=[];
-  s.tokens.forEach((t,ti)=>{
-    if(t.slash){ chunks.push({end:wi,from:start,slashId:"sl"+ti}); start=wi; }
-    else wi++;
+  const it=queue[qi]; let wi=0;
+  it.sents.forEach((s,si)=>{
+    let start=wi; const chunks=[];
+    s.tokens.forEach((t,ti)=>{
+      if(t.slash){ chunks.push({end:wi,from:start,slashId:"sl"+si+"_"+ti}); start=wi; }
+      else wi++;
+    });
+    chunks.forEach(ch=>{
+      let all=true; for(let k=ch.from;k<ch.end;k++) if(!ans[k]) all=false;
+      const el=document.getElementById(ch.slashId);
+      if(all && !el.classList.contains("show")){ el.classList.add("show"); kiran(); }
+      if(!all) el.classList.remove("show");
+    });
   });
-  chunks.forEach(ch=>{
-    let all=true; for(let k=ch.from;k<ch.end;k++) if(!ans[k]) all=false;
-    const el=document.getElementById(ch.slashId);
-    if(all && !el.classList.contains("show")){ el.classList.add("show"); kiran(); }
-    if(!all) el.classList.remove("show");
-  });
-  const n=s.n; let done=0; for(let k=0;k<n;k++) if(ans[k]) done++;
+  const n=it.n; let done=0; for(let k=0;k<n;k++) if(ans[k]) done++;
   const fin=document.getElementById("fin");
   if(done===n){
     if(tEnd===null) tEnd=performance.now();
-    const E=evalSentence(s,ans,tEnd-tStart);
+    clearInterval(taTimer);
+    if(it.ta){ lastFin={ta:true}; const c=document.getElementById("taclock"); if(c) c.textContent="⏱ "+((tEnd-tStart)/1000).toFixed(1)+"秒"; finHTML(); return; }
+    const E=evalSentence(it,ans,tEnd-tStart);
     const ng=Object.values(ans).filter(v=>v==="ng").length;
-    fin.classList.remove("hidden");
+    lastFin={E,ng};
     const pc=document.getElementById("pcard");
     if(ng===0){ if(!pc.classList.contains("lit")){ pc.classList.add("lit"); celebrate(pc); } } else pc.classList.remove("lit");
-    const wasOpen=!!document.getElementById("trtext") && !document.getElementById("trtext").classList.contains("hidden");
-    fin.innerHTML=`<div class="sum"><div class="ev"><span class="ev-l ${E.cls}">${E.label}</span><span class="ev-s">理解 ${E.ok}/${E.n}　読み ${E.sec.toFixed(1)}秒（目安 ${E.exp.toFixed(0)}秒）<br>得点 ${E.score}点 × 加重${E.w.toFixed(2)} ＝ ${E.pts}</span></div>${ng===0?"":`<div>わからなかった単語：${ng}語（ストックに入ります）</div>`}</div>
-      <div class="card ${wasOpen?"":"hidden"}" id="trtext"></div>
-      <div class="finrow"><button class="btn small sec" id="tr">全訳</button>
-      <button class="btn small" id="next">${qi+1<queue.length?"次の文へ":"おわり"}</button></div>`;
-    document.getElementById("trtext").innerHTML=`<div class="tja">${s.segs.map(g=>`<span class="${g.u.some(k=>ans[k]==="ng")?"tng":""}">${esc(g.t)}</span>`).join("")}</div>`;
-    document.getElementById("tr").onclick=()=>{document.getElementById("trtext").classList.toggle("hidden");};
-    document.getElementById("next").onclick=commit;
+    finHTML();
   } else { fin.classList.add("hidden"); const pc=document.getElementById("pcard"); if(pc) pc.classList.remove("lit"); }
 }
-function commit(){
-  const s=queue[qi]; let wi=0, anyNg=false;
-  s.tokens.forEach(t=>{
-    if(t.slash) return;
-    const v=ans[wi++];
-    if(v==="ng"){
-      anyNg=true;
-      const w=mem.words[t.key]||(mem.words[t.key]={miss:0});
-      w.miss++;
+const starsOf=sc=>sc>=95?5:sc>=85?4:sc>=72?3:sc>=55?2:1;
+const starStr=k=>"⭐".repeat(k)+"☆".repeat(5-k);
+function finHTML(){
+  const it=queue[qi], fin=document.getElementById("fin");
+  fin.classList.remove("hidden");
+  const wasOpen=!!document.getElementById("trtext") && !document.getElementById("trtext").classList.contains("hidden");
+  let sum="", btns="";
+  if(it.ta){
+    if(stage==="read"){ sum=`<div class="sum">読み終わりました！次はクイズ3問。<br>全問正解しないと結果は見られません。</div>`; btns=`<button class="btn small" id="next">クイズへ</button>`; }
+    else if(stage==="taend"){ btns=`<button class="btn small sec" id="tr">全訳</button><button class="btn small" id="next">もう一度</button>`; }
+    else { fin.classList.add("hidden"); return; }
+  } else {
+    const {E,ng}=lastFin, quizBtn=(stage==="read" && it.sents.length>1);
+    const st=starStr(starsOf(E.score));
+    sum=stage==="quiz"
+      ? `<div class="sum"><div class="ev"><span class="ev-l">${st}</span><span class="ev-s">理解 ${E.ok}/${E.n}　読み ${E.sec.toFixed(1)}秒</span></div></div>`
+      : `<div class="sum"><div class="ev"><span class="ev-l">${st}</span><span class="ev-s">理解 ${E.ok}/${E.n}　読み ${E.sec.toFixed(1)}秒（目安 ${E.exp.toFixed(0)}秒）</span></div>${ng===0?"":`<div>わからなかった単語：${ng}語（ストックに入ります）</div>`}</div>`;
+    btns=`<button class="btn small sec" id="tr">全訳</button><button class="btn small" id="next">${quizBtn?"クイズへ":(qi+1<queue.length?(it.single?"次の文へ":"次の文章へ"):"おわり")}</button>`;
+  }
+  btns=`<button class="btn small sec" id="gotop">← トップ</button>`+btns;
+  fin.innerHTML=`${sum}<div class="finrow"><div class="card ${wasOpen?"":"hidden"}" id="trtext"></div>${btns}</div>`;
+  let off=0;
+  document.getElementById("trtext")&&(document.getElementById("trtext").innerHTML=it.sents.map((s,si)=>{
+    const h=`<div class="tja">${it.sents.length>1?CIRC[si]+" ":""}${s.segs.map(g=>`<span class="${g.u.some(k=>ans[off+k]==="ng")?"tng":""}">${esc(g.t)}</span>`).join("")}</div>`;
+    off+=s.n; return h;}).join(""));
+  const tr=document.getElementById("tr"); if(tr) tr.onclick=()=>{document.getElementById("trtext").classList.toggle("hidden");};
+  document.getElementById("gotop").onclick=home;
+  document.getElementById("next").onclick=(it.sents.length>1&&stage==="read")?startQuiz:commit;
+}
+/* ===== 誤答音：低めで軽い「プー」 ===== */
+function buu(){
+  if(!sel.sound) return;
+  const ac=audio(); if(!ac) return;
+  try{
+    const t=ac.currentTime+0.01;
+    [[170,.09,"sine"],[340,.025,"triangle"]].forEach(([f,v,ty])=>{
+      const o=ac.createOscillator(), g=ac.createGain();
+      o.type=ty; o.frequency.setValueAtTime(f,t); o.frequency.linearRampToValueAtTime(f*.82,t+.32);
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+0.03); g.gain.setValueAtTime(v,t+0.16); g.gain.exponentialRampToValueAtTime(0.0001,t+0.36);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+0.4);
+    });
+  }catch(e){}
+}
+/* ===== クイズ（2文以上：本文の場所に一覧で表示） ===== */
+function startQuiz(){
+  const it=queue[qi]; stage="quiz";
+  const n=it.sents.length; let pos=[]; while(pos.length<n) pos=pos.concat(shuffle([0,1,2,3]));   // 正解位置を①〜④に均等に振る
+  qz=it.quiz.map((q,i)=>{ const others=shuffle(q.wrong); let oi=0; const ch=[]; for(let k=0;k<4;k++) ch.push(k===pos[i]?q.correct:others[oi++]); return {q:q.q,ch,ans:pos[i],pick:null}; });
+  const pc=document.getElementById("pcard")||document.getElementById("qcard");
+  const qc=document.createElement("div"); qc.className="card"; qc.id="qcard";
+  qc.innerHTML=`<div class="qh">${it.ta?"クイズ（全問正解で結果発表）":"クイズ（1文につき1問）"}</div>`+qz.map((q,i)=>`<div class="qitem" data-i="${i}"><div class="qq"><b>${i+1}</b>${esc(q.q)}</div><div class="qgrid">${q.ch.map((c,k)=>`<button class="qb" data-i="${i}" data-c="${k}"><span class="qn">${CIRC[k]}</span><span>${esc(c)}</span></button>`).join("")}</div></div>`).join("")+`<div class="qres hidden" id="qres"></div>`;
+  pc.replaceWith(qc);
+  qc.querySelectorAll(".qb").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i,c=+b.dataset.c,q=qz[i]; if(q.pick!==null) return;
+    q.pick=c;
+    qc.querySelectorAll('.qb[data-i="'+i+'"]').forEach(x=>{ const k=+x.dataset.c; if(k===q.ans) x.classList.add("right"); else if(k===c) x.classList.add("wrong"); });
+    if(c===q.ans) chime(); else buu();
+    if(qz.every(z=>z.pick!==null)){
+      const r=qz.filter(z=>z.pick===z.ans).length, el=document.getElementById("qres");
+      if(it.ta) taResult(r,el); else el.textContent="正解 "+r+" / "+qz.length;
+      el.classList.remove("hidden"); el.scrollIntoView({block:"nearest",behavior:"smooth"});
     }
   });
-  if(anyNg){ const e=mem.sents[s.id]||(mem.sents[s.id]={miss:0}); e.miss++; }
+  finHTML();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+const taStars=w=>w>=80?5:w>=65?4:w>=50?3:w>=35?2:1;
+function taResult(r,el){
+  const it=queue[qi]; stage="taend";
+  if(r===qz.length){
+    const sec=(tEnd-tStart)/1000, wpm=it.wc/(sec/60);
+    const best=Math.max(mem.taBest||0,Math.round(wpm)); const isNew=best>(mem.taBest||0); mem.taBest=best; save();
+    el.innerHTML=`<div class="ta-ok">結果発表</div><div class="ta-star">${starStr(taStars(wpm))}</div><div class="ta-wpm">${Math.round(wpm)}<small>語/分</small></div><div class="ta-det">${it.wc}語を ${sec.toFixed(1)}秒で読みました（クイズ ${r}/${qz.length}）<br>ベスト ${best}語/分${isNew?"　🎉自己ベスト更新！":""}</div>`;
+    chime();
+  } else {
+    el.innerHTML=`<div class="ta-ng">失敗…</div><div class="ta-det">クイズが全問正解ではなかったので、結果は見られません（${r}/${qz.length}）</div>`;
+  }
+  finHTML();
+}
+function commit(){
+  const it=queue[qi]; let wi=0, anyNg=false;
+  it.sents.forEach(s=>{
+    let sNg=false;
+    s.tokens.forEach(t=>{
+      if(t.slash) return;
+      const v=ans[wi++];
+      if(v==="ng"){
+        anyNg=true; sNg=true;
+        const w=mem.words[t.key]||(mem.words[t.key]={miss:0});
+        w.miss++;
+      }
+    });
+    if(sNg && it.single){ const e=mem.sents[s.id]||(mem.sents[s.id]={miss:0}); e.miss++; }
+  });
   save();
+  if(it.ta){ const others=TAS.filter(x=>x.id!==it.id); startQueue([shuffle(others.length?others:TAS)[0]]); return; }
   if(qi+1<queue.length){qi++;practice();} else home();
 }
 
@@ -845,7 +998,7 @@ function stock(){
     </div>
     <div class="card">${body}</div>`;
   document.getElementById("back").onclick=home;
-  const pr=document.getElementById("pracStock"); if(pr) pr.onclick=()=>{const ids=sk.map(Number); startQueue(shuffle(SENTS.filter(s=>ids.includes(s.id))).slice(0,SET));};
+  const pr=document.getElementById("pracStock"); if(pr) pr.onclick=()=>{const ids=sk.map(Number); startQueue(shuffle(SENTS.filter(s=>ids.includes(s.id))).slice(0,SET).map(wrap));};
   app.querySelectorAll(".tabs .chip").forEach(b=>b.onclick=()=>{stockTab=b.dataset.t;stock();});
   app.querySelectorAll("[data-w]").forEach(e=>e.onclick=()=>speak(e.dataset.w));
   app.querySelectorAll("[data-s]").forEach(e=>e.onclick=()=>speak(e.dataset.s));

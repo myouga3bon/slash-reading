@@ -43,8 +43,9 @@ h1{font-size:clamp(13px,4.2vw,17px);margin:6px 0 2px;min-width:0}
 .gh{border:0;background:transparent;color:var(--blue);font-family:inherit;font-size:16px;font-weight:600;line-height:1.1;padding:2px 0;cursor:pointer}
 .gh small{display:block;font-size:9px;color:var(--sub);font-weight:400;margin-top:2px}
 .rh{text-align:left}
-.gc{height:38px;border:2px solid var(--blue-m);background:var(--blue-l);color:var(--blue);border-radius:9px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0}
-.gc.on{background:var(--blue-d);border-color:var(--blue-d);color:#032a3d}
+.gc{height:38px;border:2px solid hsl(var(--h,199) 60% 29%);background:hsl(var(--h,199) 57% 14%);color:hsl(var(--h,199) 95% 74%);border-radius:9px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;padding:0}
+.gc.on{background:hsl(var(--h,199) 93% 60%);border-color:hsl(var(--h,199) 93% 60%);color:#032a3d}
+.pnote{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.5}
 .gc.empty{border-style:dashed;border-color:#1b3a4d;background:transparent;color:#3b5668;cursor:default}
 .count{font-size:13px;color:var(--sub);margin-top:8px}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
@@ -562,6 +563,17 @@ const PASSAGES = (PDATA.passages||[]).map((p,pi)=>{
   const band=bandOf(Math.round(wc/sents.length));
   return {id:"p"+pi,pid:p.id,title:p.title,sents,quiz:p.sents.map(x=>x.quiz),n,lv,band,key:band+lv,label:lv+band,ns:sents.length};
 });
+// TA1/TA2/TA3：1文・2文・3文のタイムアタック用の問題をつくる（3文の文章から、つながった k 文を取り出す）
+function makeTA(k,avoid){
+  const cands=[];
+  (PDATA.ta||[]).forEach((p,pi)=>{ for(let st=0;st+k<=p.sents.length;st++) cands.push({p,pi,st}); });
+  let pool=cands.filter(c=>("t"+c.pi+"_"+c.st+"_"+k)!==avoid); if(!pool.length) pool=cands;
+  const c=pool[Math.floor(Math.random()*pool.length)];
+  const raws=c.p.sents.slice(c.st,c.st+k);
+  const sents=raws.map((x,si)=>buildSent(x.raw,x.seg,2000+c.pi*10+c.st+si));
+  const n=sents.reduce((a,s)=>a+s.n,0), wc=sents.reduce((a,s)=>a+s.wc,0);
+  return {id:"t"+c.pi+"_"+c.st+"_"+k,pid:c.p.id,title:c.p.title,sents,quiz:raws.map(x=>x.quiz),n,wc,lv:"A",band:5,label:"TA"+k,ns:k,ta:true,k};
+}
 const TAS=(PDATA.ta||[]).map((p,pi)=>{
   const sents=p.sents.map((x,si)=>buildSent(x.raw,x.seg,2000+pi*10+si));
   const n=sents.reduce((a,s)=>a+s.n,0), wc=sents.reduce((a,s)=>a+s.wc,0);
@@ -765,7 +777,7 @@ function celebrate(card){ chime(); }
 const app=document.getElementById("app");
 let sel={cells:new Set(),sound:true,voice:true,n:1};
 let stage="read",lastFin=null,qz=[],taTimer=null;
-let queue=[],qi=0,ans={},finished=false,tStart=0,tEnd=null;
+let queue=[],qi=0,ans={},finished=false,tStart=0,tEnd=null,progDone=false;
 let stockTab="words";
 
 const $=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstChild;};
@@ -774,42 +786,58 @@ const pool=()=>sel.n===1?SENTS.filter(s=>sel.cells.has(s.key)).map(wrap):PASSAGE
 const cellCount=k=>sel.n===1?SENTS.filter(x=>x.key===k).length:PASSAGES.filter(x=>x.key===k&&x.ns===sel.n).length;
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
+/* ===== 色の進み具合：全単語わかるたびに暖色へ（30回で完成）。わからない単語があると1段階戻る ===== */
+const PROG_MAX=30;
+const pkOf=it=>it.single?(it.band+it.lv):(it.ns+"-"+it.key);
+const progGet=pk=>Math.max(0,Math.min(PROG_MAX,((mem.prog||{})[pk])||0));
+const hueOf=v=>Math.round(199-(199-15)*v/PROG_MAX);
+function bumpProg(it,perfect){
+  if(!mem.prog) mem.prog={};
+  const pk=pkOf(it), v=progGet(pk);
+  mem.prog[pk]=Math.max(0,Math.min(PROG_MAX,v+(perfect?1:-1)));
+  save();
+}
+const isTA=()=>typeof sel.n==="string"&&sel.n.startsWith("TA");
+const taK=()=>+String(sel.n).slice(2);
+const taBestKey=k=>k===3?"taBest":"taBest"+k;
+
 /* ===== トップ ===== */
 function home(){
   clearInterval(taTimer);
   const nWords=Object.keys(mem.words).length, nSents=Object.keys(mem.sents).length;
   app.innerHTML=`
     <div class="hd"><span class="pgname">トップ画面</span><h1 class="logo-sign" style="margin:2px 0"><span class="lg-row"><span class="lg-t s"><span class="t1">学</span><span class="t2">習</span><span class="t3">空</span><span class="t4">間</span></span><span class="lg-name">稲里教室</span></span><span class="lg-t"><span class="t1">フ</span><span class="t2">リ</span><span class="t3">ッ</span><span class="t4">ク</span><span class="t1">リ</span><span class="t2">ー</span><span class="t3">デ</span><span class="t4">ィ</span><span class="t1">ン</span><span class="t2">グ</span></span></h1><div class="hr"><div class="sndg"><button class="snd ${sel.sound?"on":""}" id="snd">効果音 ${sel.sound?"ON":"OFF"}</button></div>
-      <div class="nsel"><span class="nl">文数</span>${[1,2,3,4,5].map(k=>`<button class="np ${sel.n===k?"on":""}" data-n="${k}">${k}</button>`).join("")}<button class="np ta ${sel.n==="TA"?"on":""}" data-n="TA">TA</button></div></div></div>
-    ${sel.n==="TA"?`<div class="card"><div class="qh">⏱ TA（タイムアタック）</div>
-      <div style="font-size:14px;line-height:1.8">10〜15語の文が3文。読みはじめから読み終わりまでの時間で、<b>1分に何語読めるか</b>を測ります。<br>読み終わったらクイズ3問。<b>全問正解しないと結果は見られず、失敗</b>になります。<br>各語を下にフリック（わかる）／上にフリック（わからない）。</div>
-      <div class="note">${mem.taBest?"ベスト："+mem.taBest+"語/分":"まだ記録がありません"}　／　星5つ：80語/分以上</div></div>`:`<div class="card gcard">
+      <div class="nsel"><span class="nl">文数</span>${[1,2,3,4,5].map(k=>`<button class="np ${sel.n===k?"on":""}" data-n="${k}">${k}</button>`).join("")}${[1,2,3].map(k=>`<button class="np ta ${sel.n==="TA"+k?"on":""}" data-n="TA${k}">TA${k}</button>`).join("")}</div></div></div>
+    ${isTA()?`<div class="card"><div class="qh">⏱ TA${taK()}（タイムアタック・${taK()}文）</div>
+      <div style="font-size:14px;line-height:1.8">10〜15語の文が${taK()}文。読みはじめから読み終わりまでの時間で、<b>1分に何語読めるか</b>を測ります。<br>読み終わったらクイズ${taK()}問。<b>全問正解しないと結果は見られず、失敗</b>になります。<br>各語を下にフリック（わかる）／上にフリック（わからない）。</div>
+      <div class="note">${mem[taBestKey(taK())]?"ベスト："+mem[taBestKey(taK())]+"語/分":"まだ記録がありません"}　／　星5つ：80語/分以上</div></div>`:`<div class="card gcard">
       <button class="clr" id="clr">クリア</button>
       <div class="lvgrid" id="grid">
         <div></div>
         ${[1,2,3,4,5].map(b=>`<button class="gh" data-col="${b}">${CIRC[b-1]}<small>${3*b}〜${3*b+2}語</small></button>`).join("")}
         ${["A","B","C","D","E"].map(l=>`<button class="gh rh" data-row="${l}">${l}<small>${LVNAME[l]}</small></button>`+[1,2,3,4,5].map(b=>{
           const k=b+l, n=cellCount(k);
-          return `<button class="gc ${n?(sel.cells.has(k)?"on":""):"empty"}" data-k="${k}" ${n?"":"disabled"}>${l}${b}</button>`;}).join("")).join("")}
+          return `<button class="gc ${n?(sel.cells.has(k)?"on":""):"empty"}" data-k="${k}" ${n?`style="--h:${hueOf(progGet((sel.n===1?"":sel.n+"-")+k))}"`:"disabled"}>${l}${b}</button>`;}).join("")).join("")}
       </div>
+      <div class="pnote">色のめやす：全部の単語が「わかる」になるたびに、青から赤へ少しずつ暖かい色に変わります（30回でいちばん暖かい色）。わからない単語があると、1段階もどります。</div>
     </div>`}
-    ${sel.n!==1&&sel.n!=="TA"?`<div class="note">文数${sel.n}：内容がつながった${sel.n}文の文章を読み、読み終わると${sel.n}問のクイズが出ます（サンプルはレベルAのみ）</div>`:""}
+    ${sel.n!==1&&!isTA()?`<div class="note">文数${sel.n}：内容がつながった${sel.n}文の文章を読み、読み終わると${sel.n}問のクイズが出ます（サンプルはレベルAのみ）</div>`:""}
     <div class="row row3" style="margin-top:12px">
       <button class="btn" id="start">スタート</button>
       <button class="btn sec" id="stockBtn">単語ストック</button>
       <button class="btn sec" id="stockSent">英文ストック</button>
     </div>`;
-  if(sel.n!=="TA") [...sel.cells].forEach(k=>{ if(!cellCount(k)) sel.cells.delete(k); });
-  app.querySelectorAll(".np").forEach(b=>b.onclick=()=>{sel.n=b.dataset.n==="TA"?"TA":+b.dataset.n;home();});
+  if(!isTA()) [...sel.cells].forEach(k=>{ if(!cellCount(k)) sel.cells.delete(k); });
+  app.querySelectorAll(".np").forEach(b=>b.onclick=()=>{sel.n=b.dataset.n.startsWith("TA")?b.dataset.n:+b.dataset.n; sel.cells.clear(); home();});
   const cellKeys=()=>[...app.querySelectorAll(".gc:not(.empty)")].map(e=>e.dataset.k);
-  app.querySelectorAll(".gc:not(.empty)").forEach(b=>b.onclick=()=>{const k=b.dataset.k; sel.cells.has(k)?sel.cells.delete(k):sel.cells.add(k); home();});
-  const toggleGroup=ks=>{ if(!ks.length) return; const all=ks.every(k=>sel.cells.has(k)); ks.forEach(k=>all?sel.cells.delete(k):sel.cells.add(k)); home(); };
+  app.querySelectorAll(".gc:not(.empty)").forEach(b=>b.onclick=()=>{const k=b.dataset.k; const was=sel.cells.size===1&&sel.cells.has(k); sel.cells.clear(); if(!was) sel.cells.add(k); home();});
+  const toggleGroup=ks=>{ if(!ks.length) return; const same=ks.length===sel.cells.size&&ks.every(k=>sel.cells.has(k)); sel.cells.clear(); if(!same) ks.forEach(k=>sel.cells.add(k)); home(); };
   app.querySelectorAll("[data-col]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[0]===b.dataset.col)));
   app.querySelectorAll("[data-row]").forEach(b=>b.onclick=()=>toggleGroup(cellKeys().filter(k=>k[1]===b.dataset.row)));
   {const _c=document.getElementById("clr"); if(_c) _c.onclick=()=>{sel.cells.clear();home();};}
   document.getElementById("snd").onclick=()=>{sel.sound=!sel.sound;home();};
   document.getElementById("start").onclick=()=>{
-    if(sel.n==="TA"){ if(!TAS.length) return; startQueue([shuffle(TAS)[0]]); return; }
+    if(isTA()){ if(!(PDATA.ta||[]).length) return; startQueue([makeTA(taK())]); return; }
     const p=pool(); if(!p.length){const g=document.getElementById("grid");g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");return;}
     startQueue(shuffle(p).slice(0,sel.n===1?SET:3));
   };
@@ -821,7 +849,7 @@ function startQueue(q){queue=q;qi=0;comboN=0;practice();}
 
 /* ===== 練習 ===== */
 function practice(){ comboN=0;
-  const it=queue[qi]; ans={}; finished=false; tStart=performance.now(); tEnd=null; stage="read"; lastFin=null;
+  const it=queue[qi]; ans={}; finished=false; tStart=performance.now(); tEnd=null; stage="read"; lastFin=null; progDone=false;
   app.innerHTML=`
     <div class="top">
       <button class="btn small sec" id="back">← トップ</button>
@@ -929,6 +957,7 @@ function refreshSlashes(){
     if(it.ta){ lastFin={ta:true}; const c=document.getElementById("taclock"); if(c) c.textContent="⏱ "+((tEnd-tStart)/1000).toFixed(1)+"秒"; finHTML(); return; }
     const E=evalSentence(it,ans,tEnd-tStart);
     const ng=Object.values(ans).filter(v=>v==="ng").length;
+    if(!progDone){ progDone=true; bumpProg(it,ng===0); }
     lastFin={E,ng};
     const pc=document.getElementById("pcard");
     if(ng===0){ if(!pc.classList.contains("lit")){ pc.classList.add("lit"); celebrate(pc); } } else pc.classList.remove("lit");
@@ -943,7 +972,7 @@ function finHTML(){
   const wasOpen=!!document.getElementById("trtext") && !document.getElementById("trtext").classList.contains("hidden");
   let sum="", btns="";
   if(it.ta){
-    if(stage==="read"){ sum=`<div class="sum">読み終わりました！次はクイズ3問。<br>全問正解しないと結果は見られません。</div>`; btns=`<button class="btn small" id="next">クイズへ</button>`; }
+    if(stage==="read"){ sum=`<div class="sum">読み終わりました！次はクイズ${it.sents.length}問。<br>全問正解しないと結果は見られません。</div>`; btns=`<button class="btn small" id="next">クイズへ</button>`; }
     else if(stage==="taend"){ btns=`<button class="btn small sec" id="tr">全訳</button><button class="btn small" id="next">もう一度</button>`; }
     else { fin.classList.add("hidden"); return; }
   } else {
@@ -962,7 +991,7 @@ function finHTML(){
     off+=s.n; return h;}).join(""));
   const tr=document.getElementById("tr"); if(tr) tr.onclick=()=>{document.getElementById("trtext").classList.toggle("hidden");};
   document.getElementById("gotop").onclick=home;
-  document.getElementById("next").onclick=(it.sents.length>1&&stage==="read")?startQuiz:commit;
+  document.getElementById("next").onclick=((it.sents.length>1||it.ta)&&stage==="read")?startQuiz:commit;
 }
 /* ===== 誤答音：低めで軽い「プー」 ===== */
 function buu(){
@@ -1006,7 +1035,7 @@ function taResult(r,el){
   const it=queue[qi]; stage="taend";
   if(r===qz.length){
     const sec=(tEnd-tStart)/1000, wpm=it.wc/(sec/60);
-    const best=Math.max(mem.taBest||0,Math.round(wpm)); const isNew=best>(mem.taBest||0); mem.taBest=best; save();
+    const bk=taBestKey(it.k||3); const best=Math.max(mem[bk]||0,Math.round(wpm)); const isNew=best>(mem[bk]||0); mem[bk]=best; save();
     el.innerHTML=`<div class="ta-ok">結果発表</div><div class="ta-star">${starStr(taStars(wpm))}</div><div class="ta-wpm">${Math.round(wpm)}<small>語/分</small></div><div class="ta-det">${it.wc}語を ${sec.toFixed(1)}秒で読みました（クイズ ${r}/${qz.length}）<br>ベスト ${best}語/分${isNew?"　🎉自己ベスト更新！":""}</div>`;
     chime();
   } else {
@@ -1030,7 +1059,7 @@ function commit(){
     if(sNg && it.single){ const e=mem.sents[s.id]||(mem.sents[s.id]={miss:0}); e.miss++; }
   });
   save();
-  if(it.ta){ const others=TAS.filter(x=>x.id!==it.id); startQueue([shuffle(others.length?others:TAS)[0]]); return; }
+  if(it.ta){ startQueue([makeTA(it.k||3,it.id)]); return; }
   if(qi+1<queue.length){qi++;practice();} else home();
 }
 

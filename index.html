@@ -693,7 +693,45 @@ function combo(v){
   else comboN=0;
 }
 
-/* ===== 下フリック（わかる）の「ポン」 ===== */
+/* ===== 効果音（指定SE：Web Audio、音源ファイルなし） ===== */
+function playSE(events){
+  var AC=window.AudioContext||window.webkitAudioContext;
+  var c=window.__ac||(window.__ac=new AC());
+  if(c.state==="suspended")c.resume();
+  var t0=c.currentTime+0.02;
+  var nb=window.__nb;
+  if(!nb){nb=c.createBuffer(1,c.sampleRate*2,c.sampleRate);var d=nb.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;window.__nb=nb;}
+  events.forEach(function(e){
+    var g=c.createGain();g.connect(c.destination);
+    if(e[0]==="t"){
+      var f=e[1],s=e[2],du=e[3],w=e[4],v=e[5],to=e[6];
+      var o=c.createOscillator();o.type=w;
+      o.frequency.setValueAtTime(f,t0+s);
+      if(to)o.frequency.exponentialRampToValueAtTime(to,t0+s+du);
+      g.gain.setValueAtTime(0.0001,t0+s);
+      g.gain.exponentialRampToValueAtTime(v,t0+s+0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+s+du);
+      o.connect(g);o.start(t0+s);o.stop(t0+s+du+0.02);
+    }else{
+      var s2=e[1],d2=e[2],v2=e[3],fc=e[4],ft=e[5];
+      var src=c.createBufferSource();src.buffer=nb;
+      var fl=c.createBiquadFilter();fl.type=ft;fl.frequency.value=fc;
+      g.gain.setValueAtTime(0.0001,t0+s2);
+      g.gain.exponentialRampToValueAtTime(v2,t0+s2+0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001,t0+s2+d2);
+      src.connect(fl);fl.connect(g);src.start(t0+s2,0,d2+0.02);
+    }
+  });
+}
+const SE = {
+  SE06: [["t",800,0,0.25,"sine",0.3,2000]], // パッと光る
+  SE16: [["t",600,0,0.06,"sine",0.4,300]]    // ポチッ
+};
+// 下フリック（わかる）の音＝SE06
+// 上フリック（わからない）の音＝SE16（ポチッ）
+function flickSE(v){ if(!sel.sound) return; try{ window.__ac=audio()||window.__ac; playSE(v==="ng"?SE.SE16:SE.SE06); }catch(e){} }
+
+/* ===== 下フリック（わかる）の「ポン」（現在は未使用） ===== */
 function pon(){
   if(!sel.sound) return;
   const ac=audio(); if(!ac) return;
@@ -849,7 +887,7 @@ function attachSwipe(w,i,text){
 }
 function answer(i,v){
   if(document.getElementById("taov")) return;
-  ans[i]=v; if(v==="ok") pon();
+  ans[i]=v; flickSE(v);
   const c=document.getElementById("c"+i);
   c.classList.remove("ok","ng"); c.classList.add("done",v);
   refreshSlashes();

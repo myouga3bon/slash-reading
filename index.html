@@ -90,7 +90,7 @@ html,body{overscroll-behavior:none}
 .cell.done .ja{visibility:visible}
 .nokana .cell.done .kana{visibility:hidden}
 .cfg{padding:8px 10px!important;margin:6px 0!important}.cfg .qh{font-size:13px;margin:0}.cfg .note{font-size:10.5px;line-height:1.35;margin:1px 0 0}.cfg .cfgopts{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.cfg .chip{font-size:12px;padding:3px 9px;min-height:0;line-height:1.3}.cfg .chip small{font-size:9px;margin-left:1px;color:#ffd84d}.cfgtop{display:flex;align-items:center;gap:8px;margin:4px 0 2px}.cfgtop .note{font-size:11px;margin:0}
-.rules{margin-top:14px;font-size:13px;line-height:1.7}.rules ul{margin:6px 0 0;padding-left:1.2em}.rules li{margin:3px 0}
+.rules{margin-top:14px;font-size:13px;line-height:1.7}.rules ul{margin:6px 0 0;padding-left:1.2em}.rules ul ul{margin:2px 0 4px;padding-left:1.1em;list-style:"・ "}.rules ul ul li{margin:1px 0}.rules li{margin:3px 0}
 .ja.jl{font-size:calc(var(--wfs,26px)*.46)}
 .ja.jxl{font-size:calc(var(--wfs,26px)*.40)}
 .slash{display:flex;flex-direction:column;align-items:center;opacity:0;transform:scale(.3) rotate(-20deg);margin:0;width:12px}
@@ -1480,7 +1480,7 @@ function home(){
       </div>
     </div>`}
     
-    ${isTA()?`<div class="row" style="margin-top:12px"><button class="btn" id="start">スタート</button></div>`:""}<div class="card rules"><div class="qh">このアプリのルール</div><ul><li><b>はじめ方</b>：マスを押すとすぐに始まります。レベル（行）や語数（列）の見出しを押すと、まとめて練習できます。</li><li><b>レベル</b>：D 中1全体／C 中2初級／B 中2全体／A 中3初級／S 高校入試／SS 5文専用。語数は ①3〜5語 ②6〜8語 ③9〜11語 ④12〜14語 ⑤15語以上（a・an・the は数えません）。</li><li><b>読み方</b>：単語を<b>下にフリック＝わかる</b>、<b>上にフリック＝わからない</b>。</li><li><b>1セット</b>：1文なら${cfg().setS}問、2文以上の長文なら${cfg().setP}問。</li><li><b>クイズ</b>：1文と2〜3文の長文は1問、4文以上の長文は2問。</li><li><b>セットのクリア</b>：上フリック（わからない）がセットの単語全体の<b>${cfg().ngPct?pctTxt(cfg().ngPct)+"まで":"0（1つもなし）"}</b>、そして<b>${cfg().qng?"クイズのまちがいが"+cfg().qng+"問まで":"クイズが全問正解"}</b>のとき（例：50語のセットなら${Math.floor(50*cfg().ngPct/100)}語まで）。</li><li><b>マスの進み方</b>：1つのマスで<b>${CLEAR_N}セット</b>クリアすると次の文数に進みます（1文 水色 → 2文 オレンジ → 3文 緑 → 4文 ピンク）。クリアするたびに粒が大きくなり、全部終わると「clear」と出ます。英文がない文数はとばします。SS は5文だけです。</li><li><b>マイチェック</b>：わからなかった単語は「マイ単語チェック」、わからない単語があった1文は「マイ英文チェック」に入り、あとで練習できます。</li><li><b>設定</b>：右上の「⚙ 設定」で、クリアの条件や1セットの問題数を変えられます。</li><li><b>TA1〜3</b>：タイムアタック。1分に何語読めるかを測ります。</li></ul></div>`;
+    ${isTA()?`<div class="row" style="margin-top:12px"><button class="btn" id="start">スタート</button></div>`:""}<div class="row" style="margin-top:12px"><button class="btn small sec" id="rulesBtn">${sel.rules?"▲ ルールをとじる":"📖 ルール"}</button></div>${sel.rules?`<div class="card rules"><div class="qh">このアプリのルール</div><ul><li><b>はじめ方</b><ul><li>マスを押すとスタート</li><li>行・列の見出しを押すと、まとめて練習</li></ul></li><li><b>レベル</b><ul><li>D 中1全体／C 中2初級／B 中2全体</li><li>A 中3初級／S 高校入試／SS 5文だけ</li></ul></li><li><b>語数</b><ul><li>①3〜5語 ②6〜8語 ③9〜11語 ④12〜14語 ⑤15語以上</li><li>a・an・the は数えない</li></ul></li><li><b>読み方</b><ul><li>下にフリック＝わかる</li><li>上にフリック＝わからない</li><li>単語をタップ＝発音を聞く</li></ul></li><li><b>1セット</b><ul><li>1文：${cfg().setS}問</li><li>2文以上の長文：${cfg().setP}問</li><li>クイズ：1〜3文は1問、4文以上は2問</li></ul></li><li><b>セットのクリア</b><ul><li>わからない単語：全体の${cfg().ngPct?pctTxt(cfg().ngPct)+"まで":"0（1つもなし）"}</li><li>クイズ：${cfg().qng?"まちがい"+cfg().qng+"問まで":"全問正解"}</li></ul></li><li><b>マスの進み方</b><ul><li>${CLEAR_N}セットクリアで次の文数へ</li><li>1文 水色 → 2文 オレンジ → 3文 緑 → 4文 ピンク</li><li>クリアするたびに葉っぱが大きくなる</li><li>全部終わると「clear」</li></ul></li><li><b>マイチェック</b><ul><li>わからなかった単語 → マイ単語チェック</li><li>わからない単語があった1文 → マイ英文チェック</li></ul></li><li><b>TA1〜3</b><ul><li>タイムアタック。1分に何語読めるかを測る</li></ul></li><li><b>設定</b><ul><li>右上の「⚙ 設定」で、クリアの条件や問題数を変えられる</li></ul></li></ul></div>`:""}`;
   if(!isTA()) [...sel.cells].forEach(k=>{ if(!cellState(k).items.length) sel.cells.delete(k); });
   app.querySelectorAll(".np").forEach(b=>b.onclick=()=>{sel.n=(sel.n===b.dataset.n)?0:b.dataset.n; sel.cells.clear(); home();});
   const cellKeys=()=>[...app.querySelectorAll(".gc:not(.nodata)")].map(e=>e.dataset.k);
@@ -1494,6 +1494,7 @@ function home(){
   {const _c=document.getElementById("clr"); if(_c) _c.onclick=()=>{sel.cells.clear();home();};}
   document.getElementById("snd").onclick=()=>{sel.sound=!sel.sound;home();};
   document.getElementById("cfgBtn").onclick=settings;
+  document.getElementById("rulesBtn").onclick=()=>{ sel.rules=!sel.rules; home(); if(sel.rules) setTimeout(()=>{ const r=app.querySelector(".rules"); if(r) r.scrollIntoView({behavior:"smooth",block:"start"}); },50); };
   if(document.getElementById("start")) document.getElementById("start").onclick=()=>{
     if(isTA()){ if(!(PDATA.ta||[]).length) return; startQueue([makeTA(taK())]); return; }
     const p=pool(); if(!p.length){const g=document.getElementById("grid");g.classList.remove("shake");void g.offsetWidth;g.classList.add("shake");return;}

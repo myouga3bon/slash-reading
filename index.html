@@ -88,6 +88,7 @@ html,body{overscroll-behavior:none}
 .cell.ok .word{color:var(--ok)} .cell.ng .word{color:var(--ng)}
 .ja{height:calc(var(--wfs,26px)*.87);font-size:calc(var(--wfs,26px)*.57);line-height:calc(var(--wfs,26px)*.73);color:#fff;visibility:hidden;margin-top:0;padding-left:0;text-align:left;white-space:nowrap}
 .cell.done .ja{visibility:visible}
+.ear .lf{transform-box:view-box}.ear .lf.pop{animation:poyon .75s cubic-bezier(.3,1.6,.5,1) .15s both}@keyframes poyon{0%{transform:scale(.55)}35%{transform:scale(1.45)}60%{transform:scale(.88)}80%{transform:scale(1.08)}100%{transform:scale(1)}}.gc.grow{animation:growglow 1s ease-out .1s}@keyframes growglow{0%{box-shadow:0 0 0 0 rgba(255,214,165,.0)}30%{box-shadow:0 0 14px 3px rgba(255,214,165,.55)}100%{box-shadow:0 0 0 0 rgba(255,214,165,0)}}
 .nokana .cell.done .kana{visibility:hidden}
 .cfg{padding:8px 10px!important;margin:6px 0!important}.cfg .qh{font-size:13px;margin:0}.cfg .note{font-size:10.5px;line-height:1.35;margin:1px 0 0}.cfg .cfgopts{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.cfg .chip{font-size:12px;padding:3px 9px;min-height:0;line-height:1.3}.cfg .chip small{font-size:9px;margin-left:1px;color:#ffd84d}.cfgtop{display:flex;align-items:center;gap:8px;margin:4px 0 2px}.cfgtop .note{font-size:11px;margin:0}
 .rules{margin-top:14px;font-size:13px;line-height:1.7}.rules ul{margin:6px 0 0;padding-left:1.2em}.rules ul ul{margin:2px 0 4px;padding-left:1.1em;list-style:"・ "}.rules ul ul li{margin:1px 0}.rules li{margin:3px 0}
@@ -1472,13 +1473,15 @@ const earSVG=(k,st)=>{
     const big=(!ss&&i===3)?1.18:1, kk=0.4+0.6*c/CLEAR_N, rx=8*kk*big, ry=4.8*kk*big;   // ピンクは少し大きく
     const [ax,ay,side]=ss?[24,top+2,0]:at[i], ang=(!ss&&i===3)?-62:(side===0?-90:(side<0?-135:-45)), r=ang*Math.PI/180;
     const d=rx+1.8, cx=(ax+Math.cos(r)*d).toFixed(1), cy=(ay+Math.sin(r)*d).toFixed(1);
-    g+=`<ellipse cx="${cx}" cy="${cy}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${ang} ${cx} ${cy})" fill="${ss?EAR_COL[0]:EAR_COL[i]}" stroke="#fff1dc" stroke-width="1.4"/>`;
+    g+=`<ellipse class="lf lf${i}" style="transform-origin:${cx}px ${cy}px" cx="${cx}" cy="${cy}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" transform="rotate(${ang} ${cx} ${cy})" fill="${ss?EAR_COL[0]:EAR_COL[i]}" stroke="#fff1dc" stroke-width="1.4"/>`;
   }
   return g+"</g></svg>";
 };
+let justGrew={};   // さっき育ったマス → 育った葉の番号
 function cellClear(k){   // 1セットをノーミスで終えたとき
   if(!mem.cp) mem.cp={};
   const s=cellState(k); if(s.done) return;
+  justGrew[k]=s.st;
   let st=s.st, c=s.c+1;
   if(c>=CLEAR_N && st<lastSt(k)){ st++; c=0; }
   mem.cp[k]={st,c}; save();
@@ -1502,6 +1505,24 @@ const taK=()=>+String(sel.n).slice(2);
 const taBestKey=k=>k===3?"taBest":"taBest"+k;
 
 /* ===== トップ ===== */
+function poyon(){
+  if(!sel.sound) return;
+  try{ const ac=audio(); if(!ac) return; const t=ac.currentTime+0.02;
+    const o=ac.createOscillator(), g=ac.createGain(); o.type="sine";
+    o.frequency.setValueAtTime(260,t); o.frequency.exponentialRampToValueAtTime(720,t+0.09); o.frequency.exponentialRampToValueAtTime(430,t+0.24);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.45,t+0.02); g.gain.exponentialRampToValueAtTime(0.18,t+0.12); g.gain.exponentialRampToValueAtTime(0.0001,t+0.34);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+0.36);
+  }catch(e){}
+}
+function playGrow(){
+  const ks=Object.keys(justGrew); if(!ks.length) return;
+  let any=false;
+  ks.forEach(k=>{ const b=app.querySelector('.gc[data-k="'+k+'"]'); if(!b) return;
+    const lf=b.querySelector('.lf'+justGrew[k])||[...b.querySelectorAll('.lf')].pop(); if(!lf) return;
+    lf.classList.remove("pop"); void lf.getBBox(); lf.classList.add("pop"); b.classList.add("grow"); any=true; });
+  justGrew={};
+  if(any) setTimeout(poyon,180);
+}
 function home(){
   clearInterval(taTimer); applyCfg();
   const nWords=Object.keys(mem.words).length, nSents=Object.keys(mem.sents).length;
@@ -1537,6 +1558,7 @@ function home(){
   {const _c=document.getElementById("clr"); if(_c) _c.onclick=()=>{sel.cells.clear();home();};}
   document.getElementById("snd").onclick=()=>{sel.sound=!sel.sound;home();};
   document.getElementById("cfgBtn").onclick=settings;
+  setTimeout(playGrow,60);
   document.getElementById("rulesBtn").onclick=()=>{ sel.rules=!sel.rules; home(); if(sel.rules) setTimeout(()=>{ const r=app.querySelector(".rules"); if(r) r.scrollIntoView({behavior:"smooth",block:"start"}); },50); };
   if(document.getElementById("start")) document.getElementById("start").onclick=()=>{
     if(isTA()){ if(!(PDATA.ta||[]).length) return; startQueue([makeTA(taK())]); return; }
